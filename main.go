@@ -3,30 +3,30 @@ package main
 import (
 	"flag"
 	"fmt"
+	"math/rand"
 	"os"
 	"strings"
+	"time"
+
+	"path/filepath"
+
+	"github.com/kataras/go-template/html"
+	"github.com/kataras/iris"
 )
 
-// Usage string printed as part of the -help text. Keep the width below 80 characters to facilitate terminal
-// printing.
 const usageString = `
-A detailed description of the project that will be inserted above the help text 
-when the usage information is printed out.
+TODO
 `
 
-// I like putting logo's in the -version information as a bit of a easter egg/signature. Remove if not required.
-// Sources for logos:
-// http://www.chris.com/ascii/
-// http://www.ascii-code.com/ascii-art/
 const logoImage = `
- _        _______  _______  _______ 
-( \      (  ___  )(  ____ \(  ___  )
-| (      | (   ) || (    \/| (   ) |
-| |      | |   | || |      | |   | |
-| |      | |   | || | ____ | |   | |
-| |      | |   | || | \_  )| |   | |
-| (____/\| (___) || (___) || (___) |
-(_______/(_______)(_______)(_______)
+ _______  _______  _______  _______               _______  ______  
+(  ____ \(  ___  )/ ___   )(  ____ \    |\     /|(  ____ \(  ___ \ 
+| (    \/| (   ) |\/   )  || (    \/    | )   ( || (    \/| (   ) )
+| |      | (___) |    /   )| (__  _____ | | _ | || (__    | (__/ / 
+| | ____ |  ___  |   /   / |  __)(_____)| |( )| ||  __)   |  __ (  
+| | \_  )| (   ) |  /   /  | (          | || || || (      | (  \ \ 
+| (___) || )   ( | /   (_/\| (____/\    | () () || (____/\| )___) )
+(_______)|/     \|(_______/(_______/    (_______)(_______/|/ \___/ 
 `
 
 // VersionString is the version string inserted by whatever build script
@@ -34,10 +34,13 @@ const logoImage = `
 // Set this at build time using the -ldflags="-X main.VersionString=X.YZ"
 var VersionString = "<unofficial build>"
 
+var RandomSource = rand.New(rand.NewSource(time.Now().UnixNano()))
+
 func mainInner() error {
 
 	// first set up config flag options
 	versionFlag := flag.Bool("version", false, "Print the version string")
+	portFlag := flag.Int("port", 8080, "the port to listen on")
 
 	// set a more verbose usage message.
 	flag.Usage = func() {
@@ -54,9 +57,28 @@ func mainInner() error {
 		fmt.Println("Project: <project url here>")
 		return nil
 	}
+	if *portFlag <= 0 {
+		return fmt.Errorf("Port must be > 0")
+	}
 
-	fmt.Println("Hello World")
+	// construct server directory
+	srvDir, _ := filepath.Abs(os.Args[0])
+	srvDir = filepath.Dir(srvDir)
 
+	iris.Static("/static", "./static", 1)
+	iris.UseTemplate(html.New(html.Config{
+		Layout: "root/layout.html",
+	})).Directory(filepath.Join(srvDir, "templates"), ".html")
+
+	iris.Get("/", indexHandler)
+	iris.Post("/report", newReportHandler)
+	iris.Put("/report", newReportHandler)
+	iris.Get("/reports", listReportsHandler)
+	iris.Get("/reports/:ulid", getReportHandler)
+
+	iris.OnError(iris.StatusInternalServerError, error500Handler)
+
+	iris.Listen(fmt.Sprintf(":%v", *portFlag))
 	return nil
 }
 
