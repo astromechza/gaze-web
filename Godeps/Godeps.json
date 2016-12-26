@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/AstromechZA/go-cli-template",
+	"ImportPath": "github.com/AstromechZA/gaze-web",
 	"GoVersion": "go1.7",
 	"GodepVersion": "v75",
 	"Deps": []

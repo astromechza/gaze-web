@@ -66,25 +66,25 @@ class Generator(object):
 
 def main():
     g = Generator()
-    g.h1("`go-cli-template` - an example Go CLI application")
+    g.h1("`gaze-web` - an example Go CLI application")
     g.paragraph("""\
     This is an example repository that can be cloned and adapted for a new application. It contains useful scripts and
     automation that I have found useful while building simple CLI-based applications.
     """)
 
     g.h3("Example usage:")
-    g.command_example("./go-cli-template -version")
-    g.command_example("./go-cli-template -help")
+    g.command_example("./gaze-web -version")
+    g.command_example("./gaze-web -help")
 
     g.h3("Steps for setting up a new project from this template")
     g.paragraph("""\
     1. Clone the repository
 
     ```
-    $ git clone https://github.com/AstromechZA/go-cli-template.git
+    $ git clone https://github.com/AstromechZA/gaze-web.git
     ```
 
-    2. Rename all references to `go-cli-template` and the project url
+    2. Rename all references to `gaze-web` and the project url
 
     There is a provided script `rename_everything.py` that will run through the relevant files and rename the 
     references to the project name and import path. You will still need to rename the directory structure yourself.
@@ -109,7 +109,7 @@ def main():
     """)
 
     g.h3("Building your project")
-    g.command_example("go build -v github.com/AstromechZA/go-cli-template")
+    g.command_example("go build -v github.com/AstromechZA/gaze-web")
 
     g.h3("Official Builds")
     g.paragraph("""\

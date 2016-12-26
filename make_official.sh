@@ -9,8 +9,8 @@ VERSION_NUM=0.1
 VERSION="$VERSION_NUM (commit $(git rev-parse --short HEAD) @ $(git log -1 --date=short --pretty=format:%cd))"
 
 # change these!
-GO_PROJECT=github.com/AstromechZA/go-cli-template
-BINARY_NAME=go-cli-template
+GO_PROJECT=github.com/AstromechZA/gaze-web
+BINARY_NAME=gaze-web
 
 function buildbinary {
     goos=$1
