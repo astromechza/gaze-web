@@ -72,3 +72,7 @@ form.form-inline {
 .footer > span {
     vertical-align: bottom;
 }
+
+.faded {
+    color: #777
+}
