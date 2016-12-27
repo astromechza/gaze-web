@@ -65,8 +65,13 @@ func newReportHandler(ctx *iris.Context) {
 
 func listReportsHandler(ctx *iris.Context) {
 	var reports []Report
-	Database.Active.Table("reports").Find(&reports)
-	ctx.MustRender("reports/list.html", struct{ Reports []Report }{reports})
+	Database.Active.Find(&reports)
+	var tags []Tag
+	Database.Active.Find(&tags)
+	ctx.MustRender("reports/list.html", struct {
+		Reports []Report
+		Tags    []Tag
+	}{reports, tags})
 }
 
 func getReportHandler(ctx *iris.Context) {

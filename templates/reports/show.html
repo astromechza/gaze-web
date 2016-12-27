@@ -10,7 +10,7 @@
         </tr>
     </thead>
     <tbody>
-        <tr><td>Name</td><td>{{ .Report.Name }}</td></tr>
+        <tr><td>Name</td><td><a href="#">{{ .Report.Name }}</a></td></tr>
         <tr><td>Command</td><td><code>{{ .Report.Command }}</code></td></tr>
         <tr><td>Start time</td><td>{{ .Report.StartTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</td></tr>
         <tr><td>End time</td><td>{{ .Report.EndTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</td></tr>
@@ -25,10 +25,10 @@
             <small class="faded">&nbsp;({{ .Report.ExitDescription }})</small>
             
         </td></tr>
-        <tr><td>Hostname</td><td>{{ .Report.Hostname }}</td></tr>
+        <tr><td>Hostname</td><td><a href="#">{{ .Report.Hostname }}</a></td></tr>
         <tr><td>Tags</td><td>
         {{ range .Report.Tags }}
-            <span class="label label-info">{{ .Text }}</span>
+            <a href="#"><span class="label label-info">{{ .Text }}</span></a>
         {{ else }}
             <span class="faded">(no tags)</span>
         {{ end }}
