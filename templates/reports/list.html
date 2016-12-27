@@ -1,0 +1,26 @@
+<div class="page-header">
+    <h1>Reports <small>Listing</small></h1>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>Time</th>
+            <th>Name</th>
+            <th class="nowidth">Exit Code</th>
+        </tr>
+    </thead>
+    <tbody>
+        {{ range .Reports }}
+            <tr>
+                <td><a href="/reports/{{ .Ulid }}">{{ .StartTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</a></td>
+                <td>{{ .Name }}</td>
+                <td>{{ .ExitCode }}</td>
+            </tr>
+        {{ else }}
+            <tr>
+                <td colspan="3">No reports found</td>
+            </tr>
+        {{ end }}
+    </tbody>
+</table>

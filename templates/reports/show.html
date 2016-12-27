@@ -1,0 +1,44 @@
+<div class="page-header">
+    <h1>Report <small>{{ .Report.Ulid }}</small></h1>
+</div>
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th class="nowidth">Field</th>
+            <th>Value</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr><td>Name</td><td>{{ .Report.Name }}</td></tr>
+        <tr><td>Command</td><td><code>{{ .Report.Command }}</code></td></tr>
+        <tr><td>Start time</td><td>{{ .Report.StartTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</td></tr>
+        <tr><td>End time</td><td>{{ .Report.EndTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</td></tr>
+        <tr><td>Elapsed seconds</td><td>{{ .Report.ElapsedSeconds }} <small class="faded">({{ .ElapsedString }})</small></td></tr>
+        <tr><td>Exit</td><td>
+            {{ if .Report.ExitCode }}
+                <span class="label label-danger">
+            {{ else }}
+                <span class="label label-success">
+            {{ end }}
+                {{ .Report.ExitCode }}</span>
+            <small class="faded">&nbsp;({{ .Report.ExitDescription }})</small>
+            
+        </td></tr>
+        <tr><td>Hostname</td><td>{{ .Report.Hostname }}</td></tr>
+        <tr><td>Tags</td><td>
+        {{ range .Report.Tags }}
+            <span class="label label-info">{{ .Text }}</span>
+        {{ else }}
+            <span class="faded">(no tags)</span>
+        {{ end }}
+        </td></tr>
+        <tr><td>Output</td><td>
+            {{ if .Report.CapturedOutput }}
+                <pre>{{ .Report.CapturedOutput }}</pre>
+            {{ else }}
+                <span class="faded">(no output)</span>
+            {{ end }}
+        </td></tr>
+    </tbody>
+</table>

@@ -36,6 +36,8 @@ var VersionString = "<unofficial build>"
 
 var RandomSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
+var Database DatabaseRef
+
 func mainInner() error {
 
 	// first set up config flag options
@@ -64,6 +66,14 @@ func mainInner() error {
 	// construct server directory
 	srvDir, _ := filepath.Abs(os.Args[0])
 	srvDir = filepath.Dir(srvDir)
+
+	// set up database and models
+	db, err := initDatabase("test.db")
+	if err != nil {
+		return err
+	}
+	defer db.Close()
+	Database.Active = db
 
 	iris.Static("/static", "./static", 1)
 	iris.UseTemplate(html.New(html.Config{
