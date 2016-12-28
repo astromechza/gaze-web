@@ -4,7 +4,9 @@
 
 <h4>Filter & Search:</h4>
 
-<table class="table table-bordered table-striped">
+
+
+<table class="table table-bordered table-striped table-condensed">
     <thead>
         <tr>
             <th>Time</th>
@@ -15,7 +17,7 @@
     <tbody>
         {{ range .Reports }}
             <tr>
-                <td><a href="/reports/{{ .Ulid }}">{{ .StartTime.UTC.Format "2006-01-02 15:04:05.999999999 MST" }}</a></td>
+                <td><a href="/reports/{{ .Ulid }}">{{ .StartTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</a></td>
                 <td>{{ .Name }}</td>
                 <td>{{ .ExitCode }}</td>
             </tr>

@@ -65,13 +65,14 @@ func newReportHandler(ctx *iris.Context) {
 
 func listReportsHandler(ctx *iris.Context) {
 	var reports []Report
-	Database.Active.Find(&reports)
+	Database.Active.Order("ulid desc").Find(&reports)
 	var tags []Tag
 	Database.Active.Find(&tags)
 	ctx.MustRender("reports/list.html", struct {
+		Title   string
 		Reports []Report
 		Tags    []Tag
-	}{reports, tags})
+	}{"Reports", reports, tags})
 }
 
 func getReportHandler(ctx *iris.Context) {
@@ -83,7 +84,8 @@ func getReportHandler(ctx *iris.Context) {
 	}
 
 	ctx.MustRender("reports/show.html", struct {
+		Title         string
 		Report        Report
 		ElapsedString string
-	}{report, fmtElapsedTime(report.ElapsedSeconds)})
+	}{report.Ulid, report, fmtElapsedTime(report.ElapsedSeconds)})
 }
