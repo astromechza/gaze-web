@@ -10,7 +10,8 @@
         </tr>
     </thead>
     <tbody>
-        <tr><td>Name</td><td><a href="#">{{ .Report.Name }}</a></td></tr>
+        <tr><td>ULID</td><td>{{ .Report.Ulid }}</td></tr>
+        <tr><td>Name</td><td><a href="/reports?name={{ urlquery .Report.Name }}">{{ .Report.Name }}</a> <small><a href="/reports?name={{ urlquery .Report.Name }}&hostname={{ urlquery .Report.Hostname }}">(More from this host)</a></small></td></tr>
         <tr><td>Command</td><td><code>{{ .Report.Command }}</code></td></tr>
         <tr><td>Start time</td><td>{{ .Report.StartTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</td></tr>
         <tr><td>End time</td><td>{{ .Report.EndTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</td></tr>
@@ -25,7 +26,7 @@
             <small class="faded">&nbsp;({{ .Report.ExitDescription }})</small>
             
         </td></tr>
-        <tr><td>Hostname</td><td><a href="#">{{ .Report.Hostname }}</a></td></tr>
+        <tr><td>Hostname</td><td><a href="/reports?hostname={{ urlquery .Report.Hostname }}">{{ .Report.Hostname }}</a></td></tr>
         <tr><td>Tags</td><td>
         {{ range .Report.Tags }}
             <a href="#"><span class="label label-info">{{ .Text }}</span></a>

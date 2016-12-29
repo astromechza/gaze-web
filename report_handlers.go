@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"math"
+	"net/url"
 	"strings"
 	"time"
+
+	"strconv"
 
 	"github.com/kataras/iris"
 )
@@ -15,6 +18,14 @@ func paramIntOrDefault(ctx *iris.Context, name string, def int64) int64 {
 		return int64(i)
 	}
 	return def
+}
+
+func paginationReadyQueryString(q *url.Values) string {
+	s := q.Encode()
+	if len(s) > 0 {
+		s = s + "&"
+	}
+	return "?" + s
 }
 
 func newReportHandler(ctx *iris.Context) {
@@ -86,21 +97,77 @@ func listReportsHandler(ctx *iris.Context) {
 		numberPerPage = 500
 	}
 
+	hostname := strings.TrimSpace(ctx.URLParam("hostname"))
+	cmdName := strings.TrimSpace(ctx.URLParam("name"))
+	exitType := strings.TrimSpace(ctx.URLParam("exit"))
+	exitType = strings.ToLower(exitType)
+	exitCode, err := strconv.ParseInt(exitType, 10, 64)
+	if err != nil {
+		if exitType == "zero" || exitType == "success" {
+			exitCode = 0
+		} else if exitType == "nonzero" || exitType == "failure" {
+			exitCode = -1
+		}
+	}
+
 	var reports []Report
 	var totalRecords int64
-	Database.Active.Table("reports").Count(&totalRecords)
-	Database.Active.Order("ulid desc").Offset((pageNum - 1) * numberPerPage).Limit(numberPerPage).Find(&reports)
+	q := Database.Active.Order("ulid desc")
+	q = q.Offset((pageNum - 1) * numberPerPage).Limit(numberPerPage)
+	if hostname != "" {
+		q = q.Where("hostname = ?", hostname)
+	}
+	if cmdName != "" {
+		q = q.Where("name = ?", cmdName)
+	}
+	if exitType != "" {
+		if exitCode < 0 {
+			q = q.Where("exit_code > 0")
+		} else {
+			q = q.Where("exit_code = ?", exitCode)
+		}
+	}
+	q.Find(&reports)
+	q = Database.Active.Table("reports")
+	if hostname != "" {
+		q = q.Where("hostname = ?", hostname)
+	}
+	if cmdName != "" {
+		q = q.Where("name = ?", cmdName)
+	}
+	if exitType != "" {
+		if exitCode < 0 {
+			q = q.Where("exit_code > 0")
+		} else {
+			q = q.Where("exit_code = ?", exitCode)
+		}
+	}
+	q.Count(&totalRecords)
 	var tags []Tag
 	Database.Active.Find(&tags)
 
+	activeQuery := make(url.Values)
+	if hostname != "" {
+		activeQuery.Add("hostname", hostname)
+	}
+	if cmdName != "" {
+		activeQuery.Add("name", cmdName)
+	}
+	if exitType != "" {
+		activeQuery.Add("exit", exitType)
+	}
+
 	numberOfPages := int64(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
+
 	ctx.MustRender("reports/list.html", struct {
-		Title       string
-		Reports     []Report
-		Tags        []Tag
-		CurrentPage int64
-		TotalPages  int64
-	}{"Reports", reports, tags, pageNum, numberOfPages})
+		Title         string
+		Reports       []Report
+		Tags          []Tag
+		TotalRecords  int64
+		CurrentPage   int64
+		TotalPages    int64
+		UrlToPaginate string
+	}{"Reports", reports, tags, totalRecords, pageNum, numberOfPages, "/reports" + paginationReadyQueryString(&activeQuery)})
 }
 
 func getReportHandler(ctx *iris.Context) {
