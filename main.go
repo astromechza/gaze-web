@@ -10,6 +10,7 @@ import (
 
 	"path/filepath"
 
+	"github.com/iris-contrib/middleware/logger"
 	"github.com/kataras/go-template/html"
 	"github.com/kataras/iris"
 )
@@ -80,6 +81,13 @@ func mainInner() error {
 		Layout: "root/layout.html",
 		Funcs:  buildTemplateFuncsMap(),
 	})).Directory(filepath.Join(srvDir, "templates"), ".html")
+
+	iris.Use(logger.New(logger.Config{
+		Status: true,
+		IP:     true,
+		Method: true,
+		Path:   true,
+	}))
 
 	iris.Get("/", indexHandler)
 	iris.Post("/report", newReportHandler)

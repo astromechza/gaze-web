@@ -99,6 +99,12 @@
 			"revisionTime": "2016-10-21T19:44:08Z"
 		},
 		{
+			"checksumSHA1": "RgCoekFv6JqCplQVRLj1hxWdnqo=",
+			"path": "github.com/iris-contrib/middleware/logger",
+			"revision": "fd204bbe1fe40fb92800f5dfbb5d637776a30b46",
+			"revisionTime": "2016-10-31T04:52:57Z"
+		},
+		{
 			"checksumSHA1": "nGy5c2Euaeu0gEU0nxqFb6jO5Rw=",
 			"path": "github.com/iris-contrib/websocket",
 			"revision": "cc9f1712095295a828e9a2efaef388d30b9c7760",
@@ -203,6 +209,12 @@
 		{
 			"checksumSHA1": "TfRCKaoAayaB/gEydw0JCYHLnQo=",
 			"path": "github.com/kataras/iris",
+			"revision": "fe79fdea4436724acf7bdd40b5f1f6ca5e8ce327",
+			"revisionTime": "2016-12-22T17:07:03Z"
+		},
+		{
+			"checksumSHA1": "IirunItym3T3TkGI+I32EI4dHp4=",
+			"path": "github.com/kataras/iris/utils",
 			"revision": "fe79fdea4436724acf7bdd40b5f1f6ca5e8ce327",
 			"revisionTime": "2016-12-22T17:07:03Z"
 		},
