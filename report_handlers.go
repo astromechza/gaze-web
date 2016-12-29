@@ -40,6 +40,7 @@ func newReportHandler(ctx *iris.Context) {
 	report.CreatedAt = time.Now()
 	report.UpdatedAt = time.Now()
 	report.DeletedAt = nil
+	report.Hostname = strings.TrimSpace(strings.ToLower(report.Hostname))
 	if len(report.RawCommand) > 0 {
 		commandS := ""
 		for _, part := range report.RawCommand {

@@ -117,6 +117,12 @@
 			"revisionTime": "2016-12-20T10:27:27Z"
 		},
 		{
+			"checksumSHA1": "4VZ1gLZHMumRjV3fclS1aX8S1aQ=",
+			"path": "github.com/jinzhu/gorm/dialects/sqlite",
+			"revision": "0fbff1e8f0821fc67ef793a9f403beda5ca372b8",
+			"revisionTime": "2016-12-20T10:27:27Z"
+		},
+		{
 			"checksumSHA1": "ZtoqVjpOE8VF9n6Ebqyu4vTUYas=",
 			"path": "github.com/jinzhu/inflection",
 			"revision": "74387dc39a75e970e7a3ae6a3386b5bd2e5c5cff",
@@ -247,6 +253,12 @@
 			"path": "github.com/klauspost/crc32",
 			"revision": "cb6bfca970f6908083f26f39a79009d608efd5cd",
 			"revisionTime": "2016-10-16T15:41:25Z"
+		},
+		{
+			"checksumSHA1": "9NOEwusDSfhREf0ix7ULW9f3hhw=",
+			"path": "github.com/mattn/go-sqlite3",
+			"revision": "2d44decb4941c9cdf72c22297b7890faf7da9bcb",
+			"revisionTime": "2016-12-15T04:15:57Z"
 		},
 		{
 			"checksumSHA1": "DWtoL5LzvhxQ6LuchRPoSbsNhp4=",
