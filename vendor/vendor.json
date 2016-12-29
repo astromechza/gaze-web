@@ -81,36 +81,6 @@
 			"revisionTime": "2016-05-17T06:44:35Z"
 		},
 		{
-			"checksumSHA1": "0E4y2pf0YwUr2i0rZhXBTh+UpR4=",
-			"path": "github.com/iris-contrib/formBinder",
-			"revision": "81b6a071e35797b83562caf4b3cad24dc01912dc",
-			"revisionTime": "2016-12-15T10:50:04Z"
-		},
-		{
-			"checksumSHA1": "i6IqjmScYfsN+3oZ+Vt+SO6kghw=",
-			"path": "github.com/iris-contrib/lego/acme",
-			"revision": "095d7f6459c501cb15319aa2754afa221b81a3ec",
-			"revisionTime": "2016-10-22T05:37:38Z"
-		},
-		{
-			"checksumSHA1": "tiu4UWUWrJctQNnfz/dRFog0ksI=",
-			"path": "github.com/iris-contrib/letsencrypt",
-			"revision": "1a3e5c619a13b307df3b1b4da7cb7e57d2e156dd",
-			"revisionTime": "2016-10-21T19:44:08Z"
-		},
-		{
-			"checksumSHA1": "RgCoekFv6JqCplQVRLj1hxWdnqo=",
-			"path": "github.com/iris-contrib/middleware/logger",
-			"revision": "fd204bbe1fe40fb92800f5dfbb5d637776a30b46",
-			"revisionTime": "2016-10-31T04:52:57Z"
-		},
-		{
-			"checksumSHA1": "nGy5c2Euaeu0gEU0nxqFb6jO5Rw=",
-			"path": "github.com/iris-contrib/websocket",
-			"revision": "cc9f1712095295a828e9a2efaef388d30b9c7760",
-			"revisionTime": "2016-10-09T18:06:29Z"
-		},
-		{
 			"checksumSHA1": "y2PZ4G5G3XBzFzVuLa4p5B7KwPo=",
 			"path": "github.com/jinzhu/gorm",
 			"revision": "0fbff1e8f0821fc67ef793a9f403beda5ca372b8",
