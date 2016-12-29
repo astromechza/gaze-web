@@ -2,11 +2,20 @@ package main
 
 import (
 	"fmt"
+	"math"
 	"strings"
 	"time"
 
 	"github.com/kataras/iris"
 )
+
+func paramIntOrDefault(ctx *iris.Context, name string, def int64) int64 {
+	i, e := ctx.URLParamInt(name)
+	if e == nil {
+		return int64(i)
+	}
+	return def
+}
 
 func newReportHandler(ctx *iris.Context) {
 	var report Report
@@ -64,15 +73,34 @@ func newReportHandler(ctx *iris.Context) {
 }
 
 func listReportsHandler(ctx *iris.Context) {
+	pageNum := paramIntOrDefault(ctx, "page", 1)
+	numberPerPage := paramIntOrDefault(ctx, "numberperpage", 25)
+
+	if pageNum < 1 {
+		pageNum = 1
+	}
+	if numberPerPage < 5 {
+		numberPerPage = 5
+	}
+	if numberPerPage > 500 {
+		numberPerPage = 500
+	}
+
 	var reports []Report
-	Database.Active.Order("ulid desc").Find(&reports)
+	var totalRecords int64
+	Database.Active.Table("reports").Count(&totalRecords)
+	Database.Active.Order("ulid desc").Offset((pageNum - 1) * numberPerPage).Limit(numberPerPage).Find(&reports)
 	var tags []Tag
 	Database.Active.Find(&tags)
+
+	numberOfPages := int64(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
 	ctx.MustRender("reports/list.html", struct {
-		Title   string
-		Reports []Report
-		Tags    []Tag
-	}{"Reports", reports, tags})
+		Title       string
+		Reports     []Report
+		Tags        []Tag
+		CurrentPage int64
+		TotalPages  int64
+	}{"Reports", reports, tags, pageNum, numberOfPages})
 }
 
 func getReportHandler(ctx *iris.Context) {

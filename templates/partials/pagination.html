@@ -1,0 +1,31 @@
+
+
+<div class="text-center">
+    <nav aria-label="Page navigation">
+    <ul class="pagination">
+        {{ if gt .CurrentPage 1 }}
+            <li>
+            <a href="/reports?page={{ .CurrentPage }}" aria-label="Previous">
+                <span aria-hidden="true">&laquo;</span>
+            </a>
+            </li>
+        {{ end }}
+        {{ range (irange .TotalPages) }}
+            {{ if eq (add . 1) $.CurrentPage }}
+                <li class="active">
+            {{ else }}
+                <li>
+            {{ end }}
+                    <a href="/reports?page={{ add . 1 }}">{{ add . 1 }}</a>
+            </li>
+        {{ end }}
+        {{ if lt .CurrentPage .TotalPages }}
+            <li>
+            <a href="/reports?page={{ .CurrentPage }}" aria-label="Next">
+                <span aria-hidden="true">&raquo;</span>
+            </a>
+            </li>
+        {{ end }}
+    </ul>
+    </nav>
+</div>

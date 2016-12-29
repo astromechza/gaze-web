@@ -78,6 +78,7 @@ func mainInner() error {
 	iris.Static("/static", "./static", 1)
 	iris.UseTemplate(html.New(html.Config{
 		Layout: "root/layout.html",
+		Funcs:  buildTemplateFuncsMap(),
 	})).Directory(filepath.Join(srvDir, "templates"), ".html")
 
 	iris.Get("/", indexHandler)

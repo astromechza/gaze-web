@@ -11,7 +11,8 @@
         <tr>
             <th>Time</th>
             <th>Name</th>
-            <th class="nowidth">Exit Code</th>
+            <th>Hostname</th>
+            <th>Exit Code</th>
         </tr>
     </thead>
     <tbody>
@@ -19,12 +20,15 @@
             <tr>
                 <td><a href="/reports/{{ .Ulid }}">{{ .StartTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</a></td>
                 <td>{{ .Name }}</td>
+                <td>{{ .Hostname }}</td>
                 <td>{{ .ExitCode }}</td>
             </tr>
         {{ else }}
             <tr>
-                <td colspan="3">No reports found</td>
+                <td colspan="4">No reports found</td>
             </tr>
         {{ end }}
     </tbody>
 </table>
+
+{{ render "partials/pagination.html" }}
