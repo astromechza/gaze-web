@@ -3,6 +3,12 @@
 	"ignore": "test",
 	"package": [
 		{
+			"checksumSHA1": "flvaJZnYndDRidNqUA9lPI0nDvg=",
+			"path": "github.com/ararog/timeago",
+			"revision": "e9969cf18b8d5f04cc42f050e8b9968e152cd294",
+			"revisionTime": "2016-03-28T17:41:24Z"
+		},
+		{
 			"checksumSHA1": "KCWVxG+J8SxHGlGiUghe0KBGsa8=",
 			"path": "github.com/fatih/structs",
 			"revision": "dc3312cb1a4513a366c4c9e622ad55c32df12ed3",

@@ -76,3 +76,7 @@ form.form-inline {
 .faded {
     color: #777
 }
+
+.vert-mid {
+    vertical-align: middle !important;
+}

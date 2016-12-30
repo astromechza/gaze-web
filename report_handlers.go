@@ -158,17 +158,46 @@ func listReportsHandler(ctx *iris.Context) {
 		activeQuery.Add("exit", exitType)
 	}
 
+	var lastFailure Report
+	q = Database.Active.Order("ulid desc")
+	if hostname != "" {
+		q = q.Where("hostname = ?", hostname)
+	}
+	if cmdName != "" {
+		q = q.Where("name = ?", cmdName)
+	}
+	q = q.Where("exit_code > ?", 0)
+	q.First(&lastFailure)
+
+	var lastSuccess Report
+	q = Database.Active.Order("ulid desc")
+	if hostname != "" {
+		q = q.Where("hostname = ?", hostname)
+	}
+	if cmdName != "" {
+		q = q.Where("name = ?", cmdName)
+	}
+	q = q.Where("exit_code = 0")
+	q.First(&lastSuccess)
+
 	numberOfPages := int64(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
 
 	ctx.MustRender("reports/list.html", struct {
 		Title         string
 		Reports       []Report
+		LastSuccess   Report
+		LastFailure   Report
 		Tags          []Tag
 		TotalRecords  int64
 		CurrentPage   int64
 		TotalPages    int64
 		UrlToPaginate string
-	}{"Reports", reports, tags, totalRecords, pageNum, numberOfPages, "/reports" + paginationReadyQueryString(&activeQuery)})
+	}{
+		"Reports",
+		reports, lastSuccess, lastFailure,
+		tags,
+		totalRecords, pageNum, numberOfPages,
+		"/reports" + paginationReadyQueryString(&activeQuery)})
 }
 
 func getReportHandler(ctx *iris.Context) {

@@ -1,5 +1,10 @@
 <div class="page-header">
-    <h1>Report <small>{{ .Report.Ulid }}</small></h1>
+    <h1><i class="fa fa-newspaper-o" aria-hidden="true"></i> <small>{{ .Report.Ulid }}</small></h1>
+    {{ if .Report.ExitCode }}
+        <span class="label label-danger">Failed {{ tago .Report.EndTime }}</span>
+    {{ else }}
+        <span class="label label-success">Succeeded {{ tago .Report.EndTime }}</span>
+    {{ end }}
 </div>
 
 <table class="table table-bordered table-striped">
@@ -13,8 +18,8 @@
         <tr><td>ULID</td><td>{{ .Report.Ulid }}</td></tr>
         <tr><td>Name</td><td><a href="/reports?name={{ urlquery .Report.Name }}">{{ .Report.Name }}</a> <small><a href="/reports?name={{ urlquery .Report.Name }}&hostname={{ urlquery .Report.Hostname }}">(More from this host)</a></small></td></tr>
         <tr><td>Command</td><td><code>{{ .Report.Command }}</code></td></tr>
-        <tr><td>Start time</td><td>{{ .Report.StartTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</td></tr>
-        <tr><td>End time</td><td>{{ .Report.EndTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</td></tr>
+        <tr><td>Start time</td><td>{{ tsf .Report.StartTime.UTC }}</td></tr>
+        <tr><td>End time</td><td>{{ tsf .Report.EndTime.UTC }}</td></tr>
         <tr><td>Elapsed seconds</td><td>{{ .Report.ElapsedSeconds }} <small class="faded">({{ .ElapsedString }})</small></td></tr>
         <tr><td>Exit</td><td>
             {{ if .Report.ExitCode }}

@@ -1,10 +1,17 @@
 <div class="page-header">
-    <h1>Reports <small>Listing</small></h1>
+    <h1><i class="fa fa-newspaper-o" aria-hidden="true"></i> <small>Listing</small></h1>
 </div>
 
 <h4>Filter & Search:</h4>
 
 <p>Returned {{ .TotalRecords }} records.</p>
+
+<p>
+Most Recently succeeded <a href="/reports/{{ .LastSuccess.Ulid }}">{{ tago .LastSuccess.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+</p>
+<p>
+Most Recently failed <a href="/reports/{{ .LastFailure.Ulid }}">{{ tago .LastFailure.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+</p>
 
 <table class="table table-bordered table-striped table-condensed">
     <thead>
@@ -18,10 +25,18 @@
     <tbody>
         {{ range .Reports }}
             <tr>
-                <td><a href="/reports/{{ .Ulid }}">{{ .StartTime.UTC.Format "2006-01-02 15:04:05.000 MST" }}</a></td>
+                <td><a href="/reports/{{ .Ulid }}">{{ tsf .EndTime.UTC }}</a></td>
                 <td>{{ .Name }}</td>
                 <td>{{ .Hostname }}</td>
-                <td>{{ .ExitCode }}</td>
+                <td class="vert-mid">
+                    {{ if .ExitCode }}
+                        <span class="label label-danger">
+                    {{ else }}
+                        <span class="label label-success">
+                    {{ end }}
+                    {{ .ExitCode }}
+                    </span>
+                </td>
             </tr>
         {{ else }}
             <tr>
