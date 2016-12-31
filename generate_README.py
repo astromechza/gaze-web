@@ -66,58 +66,12 @@ class Generator(object):
 
 def main():
     g = Generator()
-    g.h1("`gaze-web` - an example Go CLI application")
+
+    g.h1("gaze-web` - a web application for serving `gaze` records")
     g.paragraph("""\
-    This is an example repository that can be cloned and adapted for a new application. It contains useful scripts and
-    automation that I have found useful while building simple CLI-based applications.
+    This web app can capture the JSON payloads produced by `gaze` (see [here](https://github.com/AstromechZA/gaze)) and display 
+    them while allowing nice paginated and searchable lists of the results.
     """)
-
-    g.h3("Example usage:")
-    g.command_example("./gaze-web -version")
-    g.command_example("./gaze-web -help")
-
-    g.h3("Steps for setting up a new project from this template")
-    g.paragraph("""\
-    1. Clone the repository
-
-    ```
-    $ git clone https://github.com/AstromechZA/gaze-web.git
-    ```
-
-    2. Rename all references to `gaze-web` and the project url
-
-    There is a provided script `rename_everything.py` that will run through the relevant files and rename the 
-    references to the project name and import path. You will still need to rename the directory structure yourself.
-
-    ```
-    $ ./rename_everything.py github.com/myuser/myrepo
-    ```
-
-    The script will also delete itself after being run.
-
-    3. Tweak the git repo
-
-    You can either delete the `.git` directory and re-run `git init` or you can
-    just change the push/pull remotes and continue from there.
-    """)
-
-    g.h3("Using the `vendor` folder and Godeps")
-    g.paragraph("""\
-    Usually you would just clone the dependency into your `vendor` directory 
-    and commit that to master. The alternative is to use Godeps to anchor the 
-    dependency versions and ignore the `vendor` directory.
-    """)
-
-    g.h3("Building your project")
-    g.command_example("go build -v github.com/AstromechZA/gaze-web")
-
-    g.h3("Official Builds")
-    g.paragraph("""\
-    The provided `make_official.sh` script will build official builds for both Linux and OSX with an official version
-    number baked in. It also compresses a `tgz` archive containing the built binaries for upload to Github or
-    whatever release mechanism is being used.
-    """)
-    g.command_example("./make_official.sh")
 
     print str(g)
 
