@@ -88,3 +88,13 @@ form.form-inline {
 .no-margin {
     margin: 0px;
 }
+
+.form-btm-margin-md-fix {
+    margin-bottom: 0px;
+}
+
+@media (max-width: 992px) {
+    .form-btm-margin-md-fix {
+        margin-bottom: 15px;
+    }
+}
