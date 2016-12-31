@@ -1,7 +1,7 @@
 package main
 
 import (
-	"fmt"
+	"encoding/json"
 	"math"
 	"net/url"
 	"strings"
@@ -10,6 +10,7 @@ import (
 	"strconv"
 
 	"github.com/kataras/iris"
+	"github.com/oklog/ulid"
 )
 
 func paramIntOrDefault(ctx *iris.Context, name string, def int64) int64 {
@@ -28,19 +29,55 @@ func paginationReadyQueryString(q *url.Values) string {
 	return "?" + s
 }
 
+func failBadRequest(ctx *iris.Context, err error) {
+	ctx.Log("Bad request due to: %v", err.Error())
+	ctx.Log("Data was: \n%v", string(ctx.PostBody()))
+	ctx.EmitError(400)
+	ctx.Write("Bad Request")
+}
+
+type jsonErrorMessage struct {
+	Code    int    `json:"code"`
+	Message string `json:"message"`
+}
+
+func failJson(ctx *iris.Context, code int, reason string) {
+	ctx.Log("Failure (%v) due to: '%v'", code, reason)
+	ctx.Log("Data was: \n%v", string(ctx.PostBody()))
+	ctx.EmitError(code)
+	s, _ := json.Marshal(jsonErrorMessage{code, reason})
+	ctx.Write(string(s))
+}
+
 func newReportHandler(ctx *iris.Context) {
 	var report Report
 	err := ctx.ReadJSON(&report)
 	if err != nil {
-		fmt.Println(err.Error())
-		ctx.EmitError(400)
+		failJson(ctx, 400, "Invalid json payload")
 		return
 	}
+
+	nowTime := time.Now()
+
+	// fields you can't provide
 	report.ID = 0
-	report.CreatedAt = time.Now()
-	report.UpdatedAt = time.Now()
+	report.CreatedAt = nowTime
+	report.UpdatedAt = nowTime
 	report.DeletedAt = nil
+
+	// fields you must provide
 	report.Hostname = strings.TrimSpace(strings.ToLower(report.Hostname))
+	if report.Hostname == "" {
+		failJson(ctx, 400, "Missing 'hostname' value")
+		return
+	}
+	report.Name = strings.TrimSpace(report.Name)
+	if report.Name == "" {
+		failJson(ctx, 400, "Missing 'name' value")
+		return
+	}
+
+	// fields that are optional
 	if len(report.RawCommand) > 0 {
 		commandS := ""
 		for _, part := range report.RawCommand {
@@ -66,7 +103,7 @@ func newReportHandler(ctx *iris.Context) {
 					tag.Text = ts
 					err = Database.Active.Create(&tag).Error
 					if err != nil {
-						fmt.Println("db create tag error " + err.Error())
+						ctx.Log("db create tag error " + err.Error())
 						ctx.EmitError(400)
 						return
 					}
@@ -75,10 +112,31 @@ func newReportHandler(ctx *iris.Context) {
 			}
 		}
 	}
+	if report.ElapsedSeconds < 0 {
+		failJson(ctx, 400, "'elapsed_seconds' value must be >= 0")
+		return
+	}
+	if report.EndTime.Before(report.StartTime) {
+		failJson(ctx, 400, "'end_time' value must be >= 'start_time' value")
+		return
+	}
+	if report.StartTime.IsZero() {
+		if report.EndTime.IsZero() {
+			report.StartTime = nowTime
+		} else {
+			report.StartTime = report.EndTime.Add(time.Duration(int64(-report.ElapsedSeconds * float32(time.Second))))
+		}
+	}
+	if report.EndTime.IsZero() {
+		report.EndTime = report.StartTime.Add(time.Duration(int64(-report.ElapsedSeconds * float32(time.Second))))
+	}
+	if report.Ulid == "" {
+		report.Ulid = ulid.MustNew(ulid.Timestamp(time.Now()), RandomSource).String()
+	}
 
 	if err = Database.Active.Create(&report).Error; err != nil {
-		fmt.Println("db create report error " + err.Error())
-		ctx.EmitError(400)
+		ctx.Log("db create report error " + err.Error())
+		failJson(ctx, 500, "Server Error")
 	} else {
 		ctx.SetStatusCode(204)
 	}
