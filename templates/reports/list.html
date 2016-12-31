@@ -4,14 +4,69 @@
 
 <h4>Filter & Search:</h4>
 
-<p>Returned {{ .TotalRecords }} records.</p>
+<div class="panel panel-default">
+    <div class="panel-body">
+        {{ $fieldNameClass := "col-md-3" }}
+        {{ $fieldValueClass := "col-md-9" }}
 
-<p>
-Most Recently succeeded <a href="/reports/{{ .LastSuccess.Ulid }}">{{ tago .LastSuccess.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
-</p>
-<p>
-Most Recently failed <a href="/reports/{{ .LastFailure.Ulid }}">{{ tago .LastFailure.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
-</p>
+        <form class="form-horizontal no-margin" method="GET" action="/reports">
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="textInput1" class="{{ $fieldNameClass }} control-label">Name</label>
+                        <div class="{{ $fieldValueClass }}">
+                        <input type="text" class="form-control" name="name" id="textInput1" placeholder="Name" value="{{ .FormName }}">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="textInput2" class="{{ $fieldNameClass }} control-label">Hostname</label>
+                        <div class="{{ $fieldValueClass }}">
+                        <input type="text" class="form-control" name="hostname" id="textInput2" placeholder="Hostname" value="{{ .FormHostname }}">
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="form-group">
+                        <label for="textInput3" class="{{ $fieldNameClass }} control-label">Exit Code</label>
+                        <div class="{{ $fieldValueClass }}">
+                        <input type="text" class="form-control" name="exit" id="textInput3" placeholder="Code" value="{{ .FormExit }}">
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-default pull-right">
+                        <i class="fa fa-search" aria-hidden="true"></i>
+                        Search
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<p class="text-center">Returned {{ .TotalRecords }} records..</p>
+
+<table class="table table-bordered table-condensed">
+    <tbody>
+        <tr>
+            <td><strong>Most Recently Succeeded:</strong></td>
+            <td>    
+            {{ if ne .LastSuccess.Ulid "" }}
+                <a href="/reports/{{ .LastSuccess.Ulid }}">{{ tago .LastSuccess.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+            {{ else }}
+                (never)
+            {{ end }}
+            </td>
+            <td><strong>Most Recently Failed:</strong></td>
+            <td>    
+            {{ if ne .LastFailure.Ulid "" }}
+                <a href="/reports/{{ .LastFailure.Ulid }}">{{ tago .LastFailure.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
+            {{ else }}
+                (never)
+            {{ end }}
+            </td>
+        </tr>
+    </tbody>
+</table>
+
 
 <table class="table table-bordered table-striped table-condensed">
     <thead>

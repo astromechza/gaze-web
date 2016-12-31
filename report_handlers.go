@@ -108,6 +108,8 @@ func listReportsHandler(ctx *iris.Context) {
 			exitCode = 0
 		} else if exitType == "nonzero" || exitType == "failure" {
 			exitCode = -1
+		} else if exitType == "any" || exitType == "anything" {
+			exitType = ""
 		}
 	}
 
@@ -183,21 +185,30 @@ func listReportsHandler(ctx *iris.Context) {
 	numberOfPages := int64(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
 
 	ctx.MustRender("reports/list.html", struct {
-		Title         string
-		Reports       []Report
-		LastSuccess   Report
-		LastFailure   Report
-		Tags          []Tag
-		TotalRecords  int64
+		Title        string
+		Reports      []Report
+		LastSuccess  Report
+		LastFailure  Report
+		Tags         []Tag
+		TotalRecords int64
+
 		CurrentPage   int64
 		TotalPages    int64
 		UrlToPaginate string
+
+		FormName     string
+		FormHostname string
+		FormExit     string
 	}{
 		"Reports",
 		reports, lastSuccess, lastFailure,
 		tags,
 		totalRecords, pageNum, numberOfPages,
-		"/reports" + paginationReadyQueryString(&activeQuery)})
+		"/reports" + paginationReadyQueryString(&activeQuery),
+		cmdName,
+		hostname,
+		exitType,
+	})
 }
 
 func getReportHandler(ctx *iris.Context) {

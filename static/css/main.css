@@ -80,3 +80,11 @@ form.form-inline {
 .vert-mid {
     vertical-align: middle !important;
 }
+
+.no-pad {
+    padding: 0px;
+}
+
+.no-margin {
+    margin: 0px;
+}
