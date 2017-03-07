@@ -17,7 +17,7 @@ func (m loggerMiddleware) Serve(ctx *iris.Context) {
 	ip := ctx.RemoteAddr()
 	status := strconv.Itoa(ctx.ResponseWriter.StatusCode())
 	path := ctx.Path()
-	qs := string(ctx.ParamsSentence())
+	qs := string(ctx.Request.URL.RawQuery)
 	method := ctx.Method()
 
 	ctx.Log(iris.DevMode, "[%v - %.2fms] %s %s %s?%s \n", status, latency, ip, method, path, qs)

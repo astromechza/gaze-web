@@ -10,7 +10,7 @@ func fmtElapsedTime(seconds float32) string {
 	divisors := []int{1, 1000, 1000, 1000, 60, 60, 24}
 	v := math.Abs(float64(seconds)) * 1000.0 * 1000.0 * 1000.0
 	lastU := units[0]
-	for i, _ := range units {
+	for i := range units {
 		if v < float64(divisors[i]) {
 			break
 		}

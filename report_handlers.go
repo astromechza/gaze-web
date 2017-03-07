@@ -43,7 +43,7 @@ type jsonErrorMessage struct {
 	Message string `json:"message"`
 }
 
-func failJson(ctx *iris.Context, code int, reason string) {
+func failJSON(ctx *iris.Context, code int, reason string) {
 	ctx.Log(iris.DevMode, "Failure (%v) due to: '%v'", code, reason)
 	body, _ := ioutil.ReadAll(ctx.Request.Body)
 	ctx.Log(iris.DevMode, "Data was: \n%v", string(body))
@@ -56,7 +56,7 @@ func newReportHandler(ctx *iris.Context) {
 	var report Report
 	err := ctx.ReadJSON(&report)
 	if err != nil {
-		failJson(ctx, 400, "Invalid json payload")
+		failJSON(ctx, 400, "Invalid json payload")
 		return
 	}
 
@@ -71,12 +71,12 @@ func newReportHandler(ctx *iris.Context) {
 	// fields you must provide
 	report.Hostname = strings.TrimSpace(strings.ToLower(report.Hostname))
 	if report.Hostname == "" {
-		failJson(ctx, 400, "Missing 'hostname' value")
+		failJSON(ctx, 400, "Missing 'hostname' value")
 		return
 	}
 	report.Name = strings.TrimSpace(report.Name)
 	if report.Name == "" {
-		failJson(ctx, 400, "Missing 'name' value")
+		failJSON(ctx, 400, "Missing 'name' value")
 		return
 	}
 
@@ -116,11 +116,11 @@ func newReportHandler(ctx *iris.Context) {
 		}
 	}
 	if report.ElapsedSeconds < 0 {
-		failJson(ctx, 400, "'elapsed_seconds' value must be >= 0")
+		failJSON(ctx, 400, "'elapsed_seconds' value must be >= 0")
 		return
 	}
 	if report.EndTime.Before(report.StartTime) {
-		failJson(ctx, 400, "'end_time' value must be >= 'start_time' value")
+		failJSON(ctx, 400, "'end_time' value must be >= 'start_time' value")
 		return
 	}
 	if report.StartTime.IsZero() {
@@ -139,7 +139,7 @@ func newReportHandler(ctx *iris.Context) {
 
 	if err = Database.Active.Create(&report).Error; err != nil {
 		ctx.Log(iris.DevMode, "db create report error "+err.Error())
-		failJson(ctx, 500, "Server Error")
+		failJSON(ctx, 500, "Server Error")
 	} else {
 		ctx.SetStatusCode(204)
 	}
@@ -147,7 +147,7 @@ func newReportHandler(ctx *iris.Context) {
 
 func listReportsHandler(ctx *iris.Context) {
 	pageNum := paramIntOrDefault(ctx, "page", 1)
-	numberPerPage := paramIntOrDefault(ctx, "numberperpage", 25)
+	numberPerPage := paramIntOrDefault(ctx, "numberperpage", 50)
 
 	if pageNum < 1 {
 		pageNum = 1
@@ -255,7 +255,7 @@ func listReportsHandler(ctx *iris.Context) {
 
 		CurrentPage   int64
 		TotalPages    int64
-		UrlToPaginate string
+		URLToPaginate string
 
 		FormName     string
 		FormHostname string

@@ -13,7 +13,7 @@ func templateFuncAdd(i int64, j int64) int64 {
 
 func templateFuncIRange(count int64) []int64 {
 	output := make([]int64, count)
-	for i, _ := range output {
+	for i := range output {
 		output[i] = int64(i)
 	}
 	return output
