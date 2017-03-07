@@ -96,6 +96,7 @@ func mainInner() error {
 	app.Put("/report", newReportHandler)
 	app.Get("/reports", listReportsHandler)
 	app.Get("/reports/:ulid", getReportHandler)
+	app.Get("/graph", graphReportsHandler)
 
 	app.OnError(iris.StatusInternalServerError, error500Handler)
 

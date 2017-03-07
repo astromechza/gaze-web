@@ -1,0 +1,89 @@
+<div class="page-header">
+    <h2><i class="fa fa-bar-chart" aria-hidden="true"></i> <small>Graph</small></h2>
+</div>
+
+<p>
+{{ if .HasFilters }}
+Showing history of last {{ len .Codes }} reports matching filter
+{{ if .FilterHostname }} hostname = {{ .FilterHostname}} {{ end }}
+{{ if .FilterCmdName }} name = {{ .FilterCmdName}} {{ end }}
+{{ if .FilterExitType }} exit = {{ .FilterExitType}} {{ end }}
+{{ else }}
+Showing history of last {{ len .Codes }} reports
+{{ end }}
+<a href="{{ .ReportListURL }}"><i class="fa fa-external-link" aria-hidden="true"></i></a>
+</p>
+<p>
+Success Percentage: {{ printf "%.2f" .FailPercent }} %
+</p>
+
+<canvas id="reportGraph" width="400" height="100"></canvas>
+
+<script>
+
+var datetimes = {{ .DateTimes }}
+var codes = {{ .Codes }}
+
+var labels = []
+var colors = []
+var datas = []
+for (var i = 0; i < datetimes.length; i+=1) {
+    datas.push(1)
+    if (codes[i] == 0) {
+        colors.push('rgba(50, 255, 50, 0.8)')
+    } else {
+        colors.push('rgba(255, 50, 50, 0.8)')
+    }
+    labels.push(datetimes[i])
+}
+
+var ctx = document.getElementById("reportGraph");
+var myChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+        labels: labels,
+        datasets: [
+            {
+                backgroundColor: colors,
+                data: datas
+            }
+        ]
+    },
+    options: {
+        legend: {
+            display: false,
+        },
+        tooltips: {
+            position: 'nearest',
+            displayColors: false,
+            callbacks: {
+                label: function (ti, d) {
+                    return 'Exit Code: ' + codes[ti.index]
+                }
+            }
+        },
+        scales: {
+            xAxes: [{
+                barPercentage: 1.0,
+                categoryPercentage: 1.0,
+                gridLines: {
+                    display: false
+                },
+                ticks: {
+                    display: false
+                }
+            }],
+            yAxes: [{
+                display: false,
+                ticks: {
+                    max: 1,
+                    min: 0
+                },
+                gridLines: {
+                    display: false
+                }
+            }]
+        }
+    }
+});
+</script>
