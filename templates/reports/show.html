@@ -29,12 +29,12 @@
             {{ end }}
                 {{ .Report.ExitCode }}</span>
             <small class="faded">&nbsp;({{ .Report.ExitDescription }})</small>
-            
+
         </td></tr>
         <tr><td>Hostname</td><td><a href="/reports?hostname={{ urlquery .Report.Hostname }}">{{ .Report.Hostname }}</a></td></tr>
         <tr><td>Tags</td><td>
         {{ range .Report.Tags }}
-            <a href="#"><span class="label label-info">{{ .Text }}</span></a>
+            <span class="label label-info">{{ .Text }}</span>
         {{ else }}
             <span class="faded">(no tags)</span>
         {{ end }}

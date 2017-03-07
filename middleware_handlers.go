@@ -20,6 +20,6 @@ func (m loggerMiddleware) Serve(ctx *iris.Context) {
 	qs := string(ctx.Request.URL.RawQuery)
 	method := ctx.Method()
 
-	ctx.Log(iris.DevMode, "[%v - %.2fms] %s %s %s?%s \n", status, latency, ip, method, path, qs)
+	ctx.Log(iris.DevMode, "(%.2fms) %s %s %s?%s [%s]\n", latency, ip, method, path, qs, status)
 	ctx.Next()
 }

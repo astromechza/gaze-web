@@ -2,9 +2,10 @@
     <h1><i class="fa fa-newspaper-o" aria-hidden="true"></i> <small>Listing</small></h1>
 </div>
 
-<h4>Filter & Search:</h4>
-
 <div class="panel panel-default">
+    <div class="panel-heading">
+        <h4 class="panel-title">Filter & Search</h4>
+    </div>
     <div class="panel-body">
         {{ $fieldNameClass := "col-md-3" }}
         {{ $fieldValueClass := "col-md-9" }}
@@ -12,13 +13,13 @@
         <form class="form-horizontal no-margin" method="GET" action="/reports">
             <div class="row">
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="form-group form-group-sm">
                         <label for="textInput1" class="{{ $fieldNameClass }} control-label">Name</label>
                         <div class="{{ $fieldValueClass }}">
                         <input type="text" class="form-control" name="name" id="textInput1" placeholder="Name" value="{{ .FormName }}">
                         </div>
                     </div>
-                    <div class="form-group form-btm-margin-md-fix">
+                    <div class="form-group form-group-sm form-btm-margin-md-fix">
                         <label for="textInput2" class="{{ $fieldNameClass }} control-label">Hostname</label>
                         <div class="{{ $fieldValueClass }}">
                         <input type="text" class="form-control" name="hostname" id="textInput2" placeholder="Hostname" value="{{ .FormHostname }}">
@@ -26,7 +27,7 @@
                     </div>
                 </div>
                 <div class="col-md-6">
-                    <div class="form-group">
+                    <div class="form-group form-group-sm">
                         <label for="textInput3" class="{{ $fieldNameClass }} control-label">Exit Code</label>
                         <div class="{{ $fieldValueClass }}">
                         <input type="text" class="form-control" name="exit" id="textInput3" placeholder="Code" value="{{ .FormExit }}">
@@ -48,7 +49,7 @@
     <tbody>
         <tr>
             <td><strong>Most Recently Succeeded:</strong></td>
-            <td>    
+            <td>
             {{ if ne .LastSuccess.Ulid "" }}
                 <a href="/reports/{{ .LastSuccess.Ulid }}">{{ tago .LastSuccess.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
             {{ else }}
@@ -56,7 +57,7 @@
             {{ end }}
             </td>
             <td><strong>Most Recently Failed:</strong></td>
-            <td>    
+            <td>
             {{ if ne .LastFailure.Ulid "" }}
                 <a href="/reports/{{ .LastFailure.Ulid }}">{{ tago .LastFailure.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
             {{ else }}
@@ -81,8 +82,8 @@
         {{ range .Reports }}
             <tr>
                 <td><a href="/reports/{{ .Ulid }}">{{ tsf .EndTime.UTC }}</a></td>
-                <td>{{ .Name }}</td>
-                <td>{{ .Hostname }}</td>
+                <td><a href="/reports?name={{ .Name }}">{{ .Name }}</a></td>
+                <td><a href="/reports?hostname={{ .Hostname }}">{{ .Hostname }}</a></td>
                 <td class="vert-mid">
                     {{ if .ExitCode }}
                         <span class="label label-danger">

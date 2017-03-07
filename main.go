@@ -87,9 +87,9 @@ func mainInner() error {
 	engine.Funcs(buildTemplateFuncsMap())
 	app.Adapt(engine)
 
-	app.StaticWeb("/static", ".static")
-
 	app.Use(loggerMiddleware{})
+
+	app.StaticWeb("/static", filepath.Join(srvDir, "static"))
 
 	app.Get("/", indexHandler)
 	app.Post("/report", newReportHandler)
