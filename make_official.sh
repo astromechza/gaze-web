@@ -2,21 +2,18 @@
 
 set -e
 
-# first build the version string
-VERSION_NUM=0.1
-
-# add the git commit id and date
-VERSION="$VERSION_NUM (commit $(git rev-parse --short HEAD) @ $(git log -1 --date=short --pretty=format:%cd))"
-
 # change these!
 GO_PROJECT=github.com/AstromechZA/gaze-web
 BINARY_NAME=gaze-web
+
+# clear build dir
+rm -rfv build/*
 
 function buildbinary {
     goos=$1
     goarch=$2
 
-    echo "Building official $goos $goarch binary for version '$VERSION'"
+    echo "Building official $goos $goarch binary"
 
     outputfolder="build/${goos}_${goarch}"
     echo "Output Folder $outputfolder"
@@ -25,18 +22,17 @@ function buildbinary {
     export GOOS=$goos
     export GOARCH=$goarch
 
-    go build -i -v -o "$outputfolder/$BINARY_NAME" -ldflags "-X \"main.VersionString=$VERSION\"" $GO_PROJECT
+    govvv build -i -v -o "$outputfolder/$BINARY_NAME" $GO_PROJECT
 
-    echo "Done"
     ls -lh "$outputfolder/$BINARY_NAME"
     file "$outputfolder/$BINARY_NAME"
     echo
 }
 
-# build local 
+# build local
 unset GOOS
 unset GOARCH
-go build -ldflags "-X \"main.VersionString=$VERSION\"" $GO_PROJECT
+govvv build $GO_PROJECT
 
 # build for mac
 buildbinary darwin amd64

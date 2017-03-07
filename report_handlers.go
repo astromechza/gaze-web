@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"math"
 	"net/url"
 	"strings"
@@ -9,8 +10,8 @@ import (
 
 	"strconv"
 
-	"github.com/kataras/iris"
 	"github.com/oklog/ulid"
+	"gopkg.in/kataras/iris.v6"
 )
 
 func paramIntOrDefault(ctx *iris.Context, name string, def int64) int64 {
@@ -30,10 +31,11 @@ func paginationReadyQueryString(q *url.Values) string {
 }
 
 func failBadRequest(ctx *iris.Context, err error) {
-	ctx.Log("Bad request due to: %v", err.Error())
-	ctx.Log("Data was: \n%v", string(ctx.PostBody()))
+	ctx.Log(iris.DevMode, "Bad request due to: %v", err.Error())
+	body, _ := ioutil.ReadAll(ctx.Request.Body)
+	ctx.Log(iris.DevMode, "Data was: \n%v", string(body))
 	ctx.EmitError(400)
-	ctx.Write("Bad Request")
+	ctx.WriteString("Bad Request")
 }
 
 type jsonErrorMessage struct {
@@ -42,11 +44,12 @@ type jsonErrorMessage struct {
 }
 
 func failJson(ctx *iris.Context, code int, reason string) {
-	ctx.Log("Failure (%v) due to: '%v'", code, reason)
-	ctx.Log("Data was: \n%v", string(ctx.PostBody()))
+	ctx.Log(iris.DevMode, "Failure (%v) due to: '%v'", code, reason)
+	body, _ := ioutil.ReadAll(ctx.Request.Body)
+	ctx.Log(iris.DevMode, "Data was: \n%v", string(body))
 	ctx.EmitError(code)
 	s, _ := json.Marshal(jsonErrorMessage{code, reason})
-	ctx.Write(string(s))
+	ctx.Write(s)
 }
 
 func newReportHandler(ctx *iris.Context) {
@@ -103,7 +106,7 @@ func newReportHandler(ctx *iris.Context) {
 					tag.Text = ts
 					err = Database.Active.Create(&tag).Error
 					if err != nil {
-						ctx.Log("db create tag error " + err.Error())
+						ctx.Log(iris.DevMode, "db create tag error %v", err.Error())
 						ctx.EmitError(400)
 						return
 					}
@@ -135,7 +138,7 @@ func newReportHandler(ctx *iris.Context) {
 	}
 
 	if err = Database.Active.Create(&report).Error; err != nil {
-		ctx.Log("db create report error " + err.Error())
+		ctx.Log(iris.DevMode, "db create report error "+err.Error())
 		failJson(ctx, 500, "Server Error")
 	} else {
 		ctx.SetStatusCode(204)

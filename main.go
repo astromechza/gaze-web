@@ -10,8 +10,9 @@ import (
 
 	"path/filepath"
 
-	"github.com/kataras/go-template/html"
-	"github.com/kataras/iris"
+	"gopkg.in/kataras/iris.v6"
+	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
+	"gopkg.in/kataras/iris.v6/adaptors/view"
 )
 
 const usageString = `
@@ -19,20 +20,21 @@ TODO
 `
 
 const logoImage = `
- _______  _______  _______  _______               _______  ______  
-(  ____ \(  ___  )/ ___   )(  ____ \    |\     /|(  ____ \(  ___ \ 
+ _______  _______  _______  _______               _______  ______
+(  ____ \(  ___  )/ ___   )(  ____ \    |\     /|(  ____ \(  ___ \
 | (    \/| (   ) |\/   )  || (    \/    | )   ( || (    \/| (   ) )
-| |      | (___) |    /   )| (__  _____ | | _ | || (__    | (__/ / 
-| | ____ |  ___  |   /   / |  __)(_____)| |( )| ||  __)   |  __ (  
-| | \_  )| (   ) |  /   /  | (          | || || || (      | (  \ \ 
+| |      | (___) |    /   )| (__  _____ | | _ | || (__    | (__/ /
+| | ____ |  ___  |   /   / |  __)(_____)| |( )| ||  __)   |  __ (
+| | \_  )| (   ) |  /   /  | (          | || || || (      | (  \ \
 | (___) || )   ( | /   (_/\| (____/\    | () () || (____/\| )___) )
-(_______)|/     \|(_______/(_______/    (_______)(_______/|/ \___/ 
+(_______)|/     \|(_______/(_______/    (_______)(_______/|/ \___/
 `
 
-// VersionString is the version string inserted by whatever build script
-// format should be 'X.YZ'
-// Set this at build time using the -ldflags="-X main.VersionString=X.YZ"
-var VersionString = "<unofficial build>"
+// These variables are filled by the `govvv` tool at compile time.
+// There are a few more granular variables available if necessary.
+var Version = "<unofficial build>"
+var GitSummary = "<changes unknown>"
+var BuildDate = "<no date>"
 
 var RandomSource = rand.New(rand.NewSource(time.Now().UnixNano()))
 
@@ -54,7 +56,7 @@ func mainInner() error {
 
 	// do arg checking
 	if *versionFlag {
-		fmt.Println("Version: " + VersionString)
+		fmt.Printf("Version: %s (%s) on %s \n", Version, GitSummary, BuildDate)
 		fmt.Println(logoImage)
 		fmt.Println("Project: <project url here>")
 		return nil
@@ -75,23 +77,29 @@ func mainInner() error {
 	defer db.Close()
 	Database.Active = db
 
-	iris.Static("/static", "./static", 1)
-	iris.UseTemplate(html.New(html.Config{
-		Layout: "root/layout.html",
-		Funcs:  buildTemplateFuncsMap(),
-	})).Directory(filepath.Join(srvDir, "templates"), ".html")
+	app := iris.New()
 
-	iris.Use(loggerMiddleware{})
+	app.Adapt(iris.DevLogger())
+	app.Adapt(httprouter.New())
 
-	iris.Get("/", indexHandler)
-	iris.Post("/report", newReportHandler)
-	iris.Put("/report", newReportHandler)
-	iris.Get("/reports", listReportsHandler)
-	iris.Get("/reports/:ulid", getReportHandler)
+	engine := view.HTML(filepath.Join(srvDir, "templates"), ".html")
+	engine.Layout("root/layout.html")
+	engine.Funcs(buildTemplateFuncsMap())
+	app.Adapt(engine)
 
-	iris.OnError(iris.StatusInternalServerError, error500Handler)
+	app.StaticWeb("/static", ".static")
 
-	iris.Listen(fmt.Sprintf(":%v", *portFlag))
+	app.Use(loggerMiddleware{})
+
+	app.Get("/", indexHandler)
+	app.Post("/report", newReportHandler)
+	app.Put("/report", newReportHandler)
+	app.Get("/reports", listReportsHandler)
+	app.Get("/reports/:ulid", getReportHandler)
+
+	app.OnError(iris.StatusInternalServerError, error500Handler)
+
+	app.Listen(fmt.Sprintf(":%v", *portFlag))
 	return nil
 }
 

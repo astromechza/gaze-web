@@ -4,7 +4,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/kataras/iris"
+	"gopkg.in/kataras/iris.v6"
 )
 
 type loggerMiddleware struct {
@@ -15,11 +15,11 @@ func (m loggerMiddleware) Serve(ctx *iris.Context) {
 	ctx.Next()
 	latency := time.Now().Sub(startTime).Seconds() * 1000
 	ip := ctx.RemoteAddr()
-	status := strconv.Itoa(ctx.Response.StatusCode())
-	path := ctx.PathString()
-	qs := string(ctx.QueryArgs().QueryString())
-	method := ctx.MethodString()
+	status := strconv.Itoa(ctx.ResponseWriter.StatusCode())
+	path := ctx.Path()
+	qs := string(ctx.ParamsSentence())
+	method := ctx.Method()
 
-	ctx.Log("[%v - %.2fms] %s %s %s?%s \n", status, latency, ip, method, path, qs)
-
+	ctx.Log(iris.DevMode, "[%v - %.2fms] %s %s %s?%s \n", status, latency, ip, method, path, qs)
+	ctx.Next()
 }

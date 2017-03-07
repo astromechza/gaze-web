@@ -3,13 +3,13 @@ package main
 import (
 	"time"
 
-	"github.com/kataras/iris"
 	"github.com/oklog/ulid"
+	"gopkg.in/kataras/iris.v6"
 )
 
 func logThatAnErrorOccured(code int, message string, ctx *iris.Context) string {
 	u := ulid.MustNew(ulid.Timestamp(time.Now()), RandomSource).String()
-	ctx.Log("Error %v (ulid: %v) during %v %v: %v", code, u, string(ctx.Method()), string(ctx.Path()), message)
+	ctx.Log(iris.DevMode, "Error %v (ulid: %v) during %v %v: %v", code, u, string(ctx.Method()), string(ctx.Path()), message)
 	return u
 }
 
