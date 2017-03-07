@@ -1,23 +1,36 @@
 <div class="page-header">
-    <h2><i class="fa fa-bar-chart" aria-hidden="true"></i> <small>Graph</small></h2>
+    <h2><i class="fa fa-bar-chart" aria-hidden="true"></i> <small>Graph - {{ printf "%.2f" .FailPercent }} Successful</small></h2>
 </div>
 
-<p>
-{{ if .HasFilters }}
-Showing history of last {{ len .Codes }} reports matching filter
-{{ if .FilterHostname }} hostname = {{ .FilterHostname}} {{ end }}
-{{ if .FilterCmdName }} name = {{ .FilterCmdName}} {{ end }}
-{{ if .FilterExitType }} exit = {{ .FilterExitType}} {{ end }}
-{{ else }}
-Showing history of last {{ len .Codes }} reports
-{{ end }}
-<a href="{{ .ReportListURL }}"><i class="fa fa-external-link" aria-hidden="true"></i></a>
-</p>
-<p>
-Success Percentage: {{ printf "%.2f" .FailPercent }} %
-</p>
-
 <canvas id="reportGraph" width="400" height="100"></canvas>
+
+<table class="table table-condensed">
+    <tbody>
+        <tr>
+            <td>Number of reports:</td><td>{{ len .Codes }}</td>
+            <td>Success percentage:</td><td>{{ printf "%.2f" .FailPercent }}</td>
+        </tr>
+        <tr>
+            <td>Hostname filter:</td><td>
+                {{ if .FilterHostname }} {{ .FilterHostname }} {{ else }} (none) {{end}}
+            </td>
+            <td>Name filter:</td><td>
+                {{ if .FilterCmdName }} {{ .FilterCmdName }} {{ else }} (none) {{end}}
+            </td>
+        </tr>
+        <tr>
+            <td>Exit filter:</td><td>
+                {{ if .FilterExitType }} {{ .FilterExitType }} {{ else }} (none) {{end}}
+            </td>
+            <td></td><td></td>
+        </tr>
+        <tr>
+            <td>Raw reports:</td>
+            <td><a href="{{ .ReportListURL }}">{{ .ReportListURL }}</a></td>
+            <td></td><td></td>
+        </tr>
+    </tbody>
+</table>
 
 <script>
 

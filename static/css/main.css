@@ -23,7 +23,7 @@ html, body {
 }
 
 td.nowidth, th.nowidth {
-    width: 0px;
+    width: 1;
     white-space: nowrap;
 }
 

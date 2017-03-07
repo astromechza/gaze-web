@@ -291,8 +291,8 @@ func graphReportsHandler(ctx *iris.Context) {
 	codes := make([]int64, len(reports))
 	failures := 0
 	for i, r := range reports {
-		dateTimes[i] = r.EndTime.UTC().Format("2006-01-02 15:04:05.000 MST")
-		codes[i] = int64(r.ExitCode)
+		dateTimes[len(reports)-i-1] = r.EndTime.UTC().Format("2006-01-02 15:04:05.000 MST")
+		codes[len(reports)-i-1] = int64(r.ExitCode)
 		if r.ExitCode != 0 {
 			failures++
 		}
