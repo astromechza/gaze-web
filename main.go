@@ -16,7 +16,9 @@ import (
 )
 
 const usageString = `
-TODO
+Running gaze-web will launch a small webserver on this host with a sqlite database
+in the current directory. The sqlite database is used to store records received
+over its http API.
 `
 
 const logoImage = `
@@ -58,7 +60,7 @@ func mainInner() error {
 	if *versionFlag {
 		fmt.Printf("Version: %s (%s) on %s \n", Version, GitSummary, BuildDate)
 		fmt.Println(logoImage)
-		fmt.Println("Project: <project url here>")
+		fmt.Println("Project: github.com/AstromechZA/gaze-web")
 		return nil
 	}
 	if *portFlag <= 0 {
@@ -70,7 +72,7 @@ func mainInner() error {
 	srvDir = filepath.Dir(srvDir)
 
 	// set up database and models
-	db, err := initDatabase("test.db")
+	db, err := initDatabase("gaze-web.db")
 	if err != nil {
 		return err
 	}
