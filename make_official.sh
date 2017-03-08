@@ -14,7 +14,7 @@ function buildbinary {
 
     echo "Building official $goos $goarch binary"
 
-    LONG_NAME="${SHORT_NAME}-${VERSION_NUM}_${goos}_${goarch}"
+    LONG_NAME="${SHORT_NAME}-${VERSION}_${goos}_${goarch}"
     outputfolder="build/$LONG_NAME/$SHORT_NAME"
     echo "Output Folder $outputfolder"
     mkdir -pv $outputfolder
