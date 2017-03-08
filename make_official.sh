@@ -4,10 +4,9 @@ set -e
 
 # change these!
 GO_PROJECT=github.com/AstromechZA/gaze-web
-BINARY_NAME=gaze-web
+SHORT_NAME=gaze-web
+VERSION=$(cat VERSION)
 
-# clear build dir
-rm -rfv build/*
 
 function buildbinary {
     goos=$1
@@ -15,19 +14,25 @@ function buildbinary {
 
     echo "Building official $goos $goarch binary"
 
-    outputfolder="build/${goos}_${goarch}"
+    LONG_NAME="${SHORT_NAME}-${VERSION_NUM}_${goos}_${goarch}"
+    outputfolder="build/$LONG_NAME/$SHORT_NAME"
     echo "Output Folder $outputfolder"
     mkdir -pv $outputfolder
 
     export GOOS=$goos
     export GOARCH=$goarch
 
-    govvv build -i -v -o "$outputfolder/$BINARY_NAME" $GO_PROJECT
+    govvv build -i -v -o "$outputfolder/$SHORT_NAME" $GO_PROJECT
 
-    ls -lh "$outputfolder/$BINARY_NAME"
-    file "$outputfolder/$BINARY_NAME"
+    cp -r static/ $outputfolder/static
+    cp -r templates/ $outputfolder/templates
+
+    tar -czvf "build/$LONG_NAME.tar.gz" -C "build/$LONG_NAME" "$SHORT_NAME"
     echo
 }
+
+# clear build dir
+rm -rfv build/*
 
 # build local
 unset GOOS
@@ -39,8 +44,3 @@ buildbinary darwin amd64
 
 # build for linux
 buildbinary linux amd64
-
-# zip up
-tar -czf $BINARY_NAME-${VERSION_NUM}.tgz -C build .
-ls -lh $BINARY_NAME-${VERSION_NUM}.tgz
-file $BINARY_NAME-${VERSION_NUM}.tgz
