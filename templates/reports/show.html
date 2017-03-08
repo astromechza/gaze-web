@@ -20,7 +20,7 @@
         <tr><td>Command</td><td><code>{{ .Report.Command }}</code></td></tr>
         <tr><td>Start time</td><td>{{ tsf .Report.StartTime.UTC }}</td></tr>
         <tr><td>End time</td><td>{{ tsf .Report.EndTime.UTC }}</td></tr>
-        <tr><td>Elapsed seconds</td><td>{{ .Report.ElapsedSeconds }} <small class="faded">({{ .ElapsedString }})</small></td></tr>
+        <tr><td>Elapsed seconds</td><td>{{ .Report.ElapsedSeconds }} <small class="faded">({{ fet .Report.ElapsedSeconds }})</small></td></tr>
         <tr><td>Exit</td><td>
             {{ if .Report.ExitCode }}
                 <span class="label label-danger">

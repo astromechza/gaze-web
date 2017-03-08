@@ -57,7 +57,6 @@ func newReportHandler(ctx *iris.Context) {
 	var report Report
 	err := ctx.ReadJSON(&report)
 	if err != nil {
-
 		failJSON(ctx, 400, "Invalid Report payload "+err.Error())
 		return
 	}
@@ -132,7 +131,6 @@ func newReportHandler(ctx *iris.Context) {
 		report.EndTime = report.StartTime.Add(time.Duration(int64(report.ElapsedSeconds * float32(time.Second))))
 	}
 
-	ctx.Log(iris.DevMode, "et %v st %v\n", report.EndTime, report.StartTime)
 	if report.EndTime.Before(report.StartTime) {
 		failJSON(ctx, 400, "'end_time' value must be >= 'start_time' value")
 		return
@@ -279,10 +277,9 @@ func getReportHandler(ctx *iris.Context) {
 	}
 
 	ctx.MustRender("reports/show.html", struct {
-		Title         string
-		Report        Report
-		ElapsedString string
-	}{report.Ulid, report, fmtElapsedTime(report.ElapsedSeconds)})
+		Title  string
+		Report Report
+	}{report.Ulid, report})
 }
 
 func graphReportsHandler(ctx *iris.Context) {

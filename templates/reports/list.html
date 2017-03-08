@@ -75,7 +75,8 @@
 <table class="table table-bordered table-striped table-condensed">
     <thead>
         <tr>
-            <th>Time</th>
+            <th>Start Time</th>
+            <th>Elapsed</th>
             <th>Name</th>
             <th>Hostname</th>
             <th>Exit Code</th>
@@ -84,7 +85,8 @@
     <tbody>
         {{ range .Reports }}
             <tr>
-                <td><a href="/reports/{{ .Ulid }}">{{ tsf .EndTime.UTC }}</a></td>
+                <td><a href="/reports/{{ .Ulid }}">{{ tsf .StartTime.UTC }}</a></td>
+                <td>{{ fet .ElapsedSeconds }}</td>
                 <td><a href="/reports?name={{ .Name }}">{{ .Name }}</a></td>
                 <td><a href="/reports?hostname={{ .Hostname }}">{{ .Hostname }}</a></td>
                 <td class="vert-mid">

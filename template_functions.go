@@ -40,6 +40,7 @@ func buildTemplateFuncsMap() map[string]interface{} {
 	output["add"] = templateFuncAdd
 	output["irange"] = templateFuncIRange
 	output["tsf"] = timestampFormat1
+	output["fet"] = fmtElapsedTime
 	output["tago"] = timeAgoString
 	output["version"] = buildVersionString
 	return output
