@@ -57,7 +57,8 @@ func newReportHandler(ctx *iris.Context) {
 	var report Report
 	err := ctx.ReadJSON(&report)
 	if err != nil {
-		failJSON(ctx, 400, "Invalid json payload")
+
+		failJSON(ctx, 400, "Invalid Report payload "+err.Error())
 		return
 	}
 
@@ -120,10 +121,6 @@ func newReportHandler(ctx *iris.Context) {
 		failJSON(ctx, 400, "'elapsed_seconds' value must be >= 0")
 		return
 	}
-	if report.EndTime.Before(report.StartTime) {
-		failJSON(ctx, 400, "'end_time' value must be >= 'start_time' value")
-		return
-	}
 	if report.StartTime.IsZero() {
 		if report.EndTime.IsZero() {
 			report.StartTime = nowTime
@@ -132,10 +129,21 @@ func newReportHandler(ctx *iris.Context) {
 		}
 	}
 	if report.EndTime.IsZero() {
-		report.EndTime = report.StartTime.Add(time.Duration(int64(-report.ElapsedSeconds * float32(time.Second))))
+		report.EndTime = report.StartTime.Add(time.Duration(int64(report.ElapsedSeconds * float32(time.Second))))
 	}
+
+	ctx.Log(iris.DevMode, "et %v st %v\n", report.EndTime, report.StartTime)
+	if report.EndTime.Before(report.StartTime) {
+		failJSON(ctx, 400, "'end_time' value must be >= 'start_time' value")
+		return
+	}
+
 	if report.Ulid == "" {
 		report.Ulid = ulid.MustNew(ulid.Timestamp(time.Now()), RandomSource).String()
+	}
+
+	if report.ExitDescription == "" {
+		report.ExitDescription = "No description provided"
 	}
 
 	if err = Database.Active.Create(&report).Error; err != nil {
@@ -284,15 +292,17 @@ func graphReportsHandler(ctx *iris.Context) {
 	n := 100
 	var reports []Report
 	q := getReportsQuery(hostname, cmdName, exitType, exitCode)
-	q.Limit(n)
+	q = q.Limit(n)
 	q.Find(&reports)
 
 	dateTimes := make([]string, len(reports))
 	codes := make([]int64, len(reports))
+	uids := make([]string, len(reports))
 	failures := 0
 	for i, r := range reports {
 		dateTimes[len(reports)-i-1] = r.EndTime.UTC().Format("2006-01-02 15:04:05.000 MST")
 		codes[len(reports)-i-1] = int64(r.ExitCode)
+		uids[len(reports)-i-1] = r.Ulid
 		if r.ExitCode != 0 {
 			failures++
 		}
@@ -309,6 +319,7 @@ func graphReportsHandler(ctx *iris.Context) {
 		FailPercent    float64
 		DateTimes      []string
 		Codes          []int64
+		Ulids          []string
 		HasFilters     bool
 		FilterHostname string
 		FilterCmdName  string
@@ -319,6 +330,7 @@ func graphReportsHandler(ctx *iris.Context) {
 		failPercent,
 		dateTimes,
 		codes,
+		uids,
 		(hostname != "" || cmdName != "" || exitType != ""),
 		hostname,
 		cmdName,

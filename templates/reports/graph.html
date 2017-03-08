@@ -1,7 +1,8 @@
 <div class="page-header">
-    <h2><i class="fa fa-bar-chart" aria-hidden="true"></i> <small>Graph - {{ printf "%.2f" .FailPercent }} Successful</small></h2>
+    <h2><i class="fa fa-bar-chart" aria-hidden="true"></i> <small>Graph - {{ printf "%.2f" .FailPercent }}% Successful</small></h2>
 </div>
 
+<small>Click an item to view it:</small>
 <canvas id="reportGraph" width="400" height="100"></canvas>
 
 <table class="table table-condensed">
@@ -36,7 +37,7 @@
 
 var datetimes = {{ .DateTimes }}
 var codes = {{ .Codes }}
-
+var ulids = {{ .Ulids }}
 var labels = []
 var colors = []
 var datas = []
@@ -96,6 +97,14 @@ var myChart = new Chart(ctx, {
                     display: false
                 }
             }]
+        },
+        onClick: function (eve, elems) {
+            if (elems.length == 1) {
+                var element = elems[0]
+                if (element.hidden == false && element._index >= 0 && element._index < ulids.length) {
+                    window.open('/reports/' + ulids[element._index], '_blank')
+                }
+            }
         }
     }
 });
