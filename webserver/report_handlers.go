@@ -10,10 +10,10 @@ import (
 
 	"strconv"
 
-	"github.com/AstromechZA/gaze-web/database"
+	"github.com/AstromechZA/gaze-web/models"
 	"github.com/AstromechZA/gaze-web/random"
+	"github.com/AstromechZA/gaze-web/storage"
 
-	"github.com/jinzhu/gorm"
 	"gopkg.in/kataras/iris.v6"
 )
 
@@ -56,7 +56,7 @@ func failJSON(ctx *iris.Context, code int, reason string) {
 }
 
 func NewReportHandler(ctx *iris.Context) {
-	var report database.Report
+	var report models.Report
 	err := ctx.ReadJSON(&report)
 	if err != nil {
 		failJSON(ctx, 400, "Invalid Report payload "+err.Error())
@@ -98,26 +98,6 @@ func NewReportHandler(ctx *iris.Context) {
 		}
 		report.Command = commandS
 	}
-	if len(report.RawTags) > 0 {
-		report.Tags = make([]database.Tag, 0)
-		for _, ts := range report.RawTags {
-			ts = strings.TrimSpace(strings.ToLower(ts))
-			if len(ts) > 0 {
-				// validate
-				var tag database.Tag
-				if err := database.ActiveDB.Where("text = ?", ts).First(&tag).Error; err != nil {
-					tag.Text = ts
-					err = database.ActiveDB.Create(&tag).Error
-					if err != nil {
-						ctx.Log(iris.DevMode, "db create tag error %v", err.Error())
-						ctx.EmitError(400)
-						return
-					}
-				}
-				report.Tags = append(report.Tags, tag)
-			}
-		}
-	}
 	if report.ElapsedSeconds < 0 {
 		failJSON(ctx, 400, "'elapsed_seconds' value must be >= 0")
 		return
@@ -146,7 +126,7 @@ func NewReportHandler(ctx *iris.Context) {
 		report.ExitDescription = "No description provided"
 	}
 
-	if err = database.ActiveDB.Create(&report).Error; err != nil {
+	if err = storage.ActiveStore.AddReport(&report); err != nil {
 		ctx.Log(iris.DevMode, "db create report error "+err.Error())
 		failJSON(ctx, 500, "Server Error")
 	} else {
@@ -154,12 +134,12 @@ func NewReportHandler(ctx *iris.Context) {
 	}
 }
 
-func parseFilterParams(ctx *iris.Context) (string, string, string, int64) {
+func parseFilterParams(ctx *iris.Context) (string, string, string, int) {
 	hostname := strings.TrimSpace(ctx.URLParam("hostname"))
 	cmdName := strings.TrimSpace(ctx.URLParam("name"))
 	exitType := strings.TrimSpace(ctx.URLParam("exit"))
 	exitType = strings.ToLower(exitType)
-	exitCode, err := strconv.ParseInt(exitType, 10, 64)
+	exitCode, err := strconv.ParseInt(exitType, 10, 32)
 	if err != nil {
 		if exitType == "zero" || exitType == "success" {
 			exitCode = 0
@@ -169,7 +149,7 @@ func parseFilterParams(ctx *iris.Context) (string, string, string, int64) {
 			exitType = ""
 		}
 	}
-	return hostname, cmdName, exitType, exitCode
+	return hostname, cmdName, exitType, int(exitCode)
 }
 
 func buildURLValues(hostname, cmdName, exitType string) *url.Values {
@@ -186,21 +166,7 @@ func buildURLValues(hostname, cmdName, exitType string) *url.Values {
 	return &activeQuery
 }
 
-func getReportsQuery(hostname, cmdName, exitType string, exitCode int64) *gorm.DB {
-	q := database.ActiveDB.Table("reports").Order("start_time desc")
-	if hostname != "" {
-		q = q.Where("hostname = ?", hostname)
-	}
-	if cmdName != "" {
-		q = q.Where("name = ?", cmdName)
-	}
-	if exitType != "" {
-		q = q.Where("exit_code = ?", exitCode)
-	}
-	return q
-}
-
-func parsePaginationParams(ctx *iris.Context) (int64, int64) {
+func parsePaginationParams(ctx *iris.Context) (int, int) {
 	pageNum := paramIntOrDefault(ctx, "page", 1)
 	numberPerPage := paramIntOrDefault(ctx, "numberperpage", 50)
 
@@ -213,7 +179,7 @@ func parsePaginationParams(ctx *iris.Context) (int64, int64) {
 	if numberPerPage > 500 {
 		numberPerPage = 500
 	}
-	return pageNum, numberPerPage
+	return int(pageNum), int(numberPerPage)
 }
 
 func ListReportsHandler(ctx *iris.Context) {
@@ -222,32 +188,28 @@ func ListReportsHandler(ctx *iris.Context) {
 	hostname, cmdName, exitType, exitCode := parseFilterParams(ctx)
 	activeQuery := buildURLValues(hostname, cmdName, exitType)
 
-	var reports []database.Report
-	q := getReportsQuery(hostname, cmdName, exitType, exitCode)
-	q = q.Offset((pageNum - 1) * numberPerPage).Limit(numberPerPage)
-	q.Find(&reports)
+	filter := storage.ReportStoreFilter{
+		Hostname: hostname,
+		Cmdname:  cmdName,
+		ExitCode: exitCode,
+		ExitType: exitType,
+	}
 
-	var totalRecords int64
-	getReportsQuery(hostname, cmdName, exitType, exitCode).Count(&totalRecords)
+	reports, _ := storage.ActiveStore.ListReportsPage(filter, numberPerPage, pageNum)
 
-	var lastFailure database.Report
-	q = getReportsQuery(hostname, cmdName, exitType, exitCode)
-	q = q.Where("exit_code != ?", 0)
-	q.First(&lastFailure)
+	totalRecords, _ := storage.ActiveStore.CountReports(filter)
 
-	var lastSuccess database.Report
-	q = getReportsQuery(hostname, cmdName, exitType, exitCode)
-	q = q.Where("exit_code = 0")
-	q.First(&lastSuccess)
+	lastFailure, _ := storage.ActiveStore.GetLatestFailedReport(filter)
+	lastSuccess, _ := storage.ActiveStore.GetLatestSuccessfulReport(filter)
 
-	numberOfPages := int64(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
+	numberOfPages := int(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
 
 	ctx.MustRender("reports/list.html", struct {
 		Title        string
-		Reports      []database.Report
-		LastSuccess  database.Report
-		LastFailure  database.Report
-		TotalRecords int64
+		Reports      []models.Report
+		LastSuccess  models.Report
+		LastFailure  models.Report
+		TotalRecords int
 		GraphLink    string
 
 		CurrentPage   int64
@@ -259,10 +221,10 @@ func ListReportsHandler(ctx *iris.Context) {
 		FormExit     string
 	}{
 		"Reports",
-		reports, lastSuccess, lastFailure,
+		*reports, *lastSuccess, *lastFailure,
 		totalRecords,
 		"/graph" + paginationReadyQueryString(activeQuery),
-		pageNum, numberOfPages,
+		int64(pageNum), int64(numberOfPages),
 		"/reports" + paginationReadyQueryString(activeQuery),
 		cmdName,
 		hostname,
@@ -272,44 +234,47 @@ func ListReportsHandler(ctx *iris.Context) {
 
 func GetReportHandler(ctx *iris.Context) {
 	u := ctx.Param("ulid")
-	var report database.Report
-	if err := database.ActiveDB.Preload("Tags").Where("ulid = ?", u).First(&report).Error; err != nil {
+	report, err := storage.ActiveStore.GetReport(u)
+	if err != nil {
 		ctx.EmitError(iris.StatusNotFound)
 		return
 	}
-
 	ctx.MustRender("reports/show.html", struct {
 		Title  string
-		Report database.Report
-	}{report.Ulid, report})
+		Report models.Report
+	}{report.Ulid, *report})
 }
 
 func GraphReportsHandler(ctx *iris.Context) {
 	hostname, cmdName, exitType, exitCode := parseFilterParams(ctx)
 	activeQuery := buildURLValues(hostname, cmdName, exitType)
 
-	n := 100
-	var reports []database.Report
-	q := getReportsQuery(hostname, cmdName, exitType, exitCode)
-	q = q.Limit(n)
-	q.Find(&reports)
+	filter := storage.ReportStoreFilter{
+		Hostname: hostname,
+		Cmdname:  cmdName,
+		ExitCode: exitCode,
+		ExitType: exitType,
+	}
 
-	dateTimes := make([]string, len(reports))
-	codes := make([]int64, len(reports))
-	uids := make([]string, len(reports))
+	reports, _ := storage.ActiveStore.ListReportsPage(filter, 100, 1)
+	reports2 := *reports
+
+	dateTimes := make([]string, len(reports2))
+	codes := make([]int64, len(reports2))
+	uids := make([]string, len(reports2))
 	failures := 0
-	for i, r := range reports {
-		dateTimes[len(reports)-i-1] = r.EndTime.UTC().Format("2006-01-02 15:04:05.000 MST")
-		codes[len(reports)-i-1] = int64(r.ExitCode)
-		uids[len(reports)-i-1] = r.Ulid
+	for i, r := range reports2 {
+		dateTimes[len(reports2)-i-1] = r.EndTime.UTC().Format("2006-01-02 15:04:05.000 MST")
+		codes[len(reports2)-i-1] = int64(r.ExitCode)
+		uids[len(reports2)-i-1] = r.Ulid
 		if r.ExitCode != 0 {
 			failures++
 		}
 	}
 
 	failPercent := 0.0
-	if len(reports) > 0 {
-		failPercent = 100 * (1.0 - (float64(failures) / float64(len(reports))))
+	if len(reports2) > 0 {
+		failPercent = 100 * (1.0 - (float64(failures) / float64(len(reports2))))
 	}
 
 	ctx.MustRender("reports/graph.html", struct {

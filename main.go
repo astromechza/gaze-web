@@ -8,7 +8,8 @@ import (
 	"runtime"
 	"strings"
 
-	"github.com/AstromechZA/gaze-web/database"
+	"github.com/AstromechZA/gaze-web/storage"
+	gormstorage "github.com/AstromechZA/gaze-web/storage/gorm"
 	"github.com/AstromechZA/gaze-web/utils"
 	"github.com/AstromechZA/gaze-web/webserver"
 )
@@ -68,12 +69,12 @@ func mainInner() error {
 	srvDir = filepath.Dir(srvDir)
 
 	// set up database and models
-	db, err := database.InitSqliteDatabase("gaze-web.db")
+	store, err := gormstorage.SetupGormReportStore("gaze-web.db")
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	database.ActiveDB = db
+	defer store.Close()
+	storage.ActiveStore = store
 
 	app := webserver.Setup(srvDir)
 	app.Listen(fmt.Sprintf(":%v", *portFlag))

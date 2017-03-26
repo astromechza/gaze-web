@@ -1,27 +1,8 @@
-package database
+package models
 
 import (
 	"time"
-
-	"github.com/jinzhu/gorm"
-
-	// support for sqlite
-	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
-
-var ActiveDB *gorm.DB
-
-func InitSqliteDatabase(filepath string) (*gorm.DB, error) {
-	db, err := gorm.Open("sqlite3", filepath)
-	if err != nil {
-		return nil, err
-	}
-
-	db.AutoMigrate(&Report{})
-	db.AutoMigrate(&Tag{})
-
-	return db, nil
-}
 
 type Tag struct {
 	ID   uint   `gorm:"primary_key"`
