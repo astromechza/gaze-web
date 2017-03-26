@@ -63,7 +63,7 @@ func (s *BoltDBReportStore) ListReportsPage(filter storage.ReportStoreFilter, nu
 }
 
 func (s *BoltDBReportStore) Close() error {
-	return s.database.Close()
+	return s.db.Close()
 }
 
 var _ storage.GazeWebReportStore = (*BoltDBReportStore)(nil)

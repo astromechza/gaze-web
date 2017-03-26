@@ -6,7 +6,7 @@ var ActiveStore GazeWebReportStore
 
 type ReportStoreFilter struct {
 	Hostname string
-	Cmdname  string
+	Name     string
 	ExitCode int
 	ExitType string
 }

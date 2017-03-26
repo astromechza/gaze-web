@@ -9,7 +9,7 @@ import (
 	"strings"
 
 	"github.com/AstromechZA/gaze-web/storage"
-	gormstorage "github.com/AstromechZA/gaze-web/storage/gorm"
+	boltstorage "github.com/AstromechZA/gaze-web/storage/bolt"
 	"github.com/AstromechZA/gaze-web/utils"
 	"github.com/AstromechZA/gaze-web/webserver"
 )
@@ -69,7 +69,7 @@ func mainInner() error {
 	srvDir = filepath.Dir(srvDir)
 
 	// set up database and models
-	store, err := gormstorage.SetupGormReportStore("gaze-web.db")
+	store, err := boltstorage.SetupBoltDBReportStore("gaze-web.db")
 	if err != nil {
 		return err
 	}

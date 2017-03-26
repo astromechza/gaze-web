@@ -65,12 +65,6 @@ func NewReportHandler(ctx *iris.Context) {
 
 	nowTime := time.Now()
 
-	// fields you can't provide
-	report.ID = 0
-	report.CreatedAt = nowTime
-	report.UpdatedAt = nowTime
-	report.DeletedAt = nil
-
 	// fields you must provide
 	report.Hostname = strings.TrimSpace(strings.ToLower(report.Hostname))
 	if report.Hostname == "" {
@@ -82,26 +76,12 @@ func NewReportHandler(ctx *iris.Context) {
 		failJSON(ctx, 400, "Missing 'name' value")
 		return
 	}
-
-	// fields that are optional
-	if len(report.RawCommand) > 0 {
-		commandS := ""
-		for _, part := range report.RawCommand {
-			if strings.Contains(part, " ") {
-				part = "\"" + part + "\""
-			}
-			if len(commandS) == 0 {
-				commandS += part
-			} else {
-				commandS += " " + part
-			}
-		}
-		report.Command = commandS
-	}
 	if report.ElapsedSeconds < 0 {
 		failJSON(ctx, 400, "'elapsed_seconds' value must be >= 0")
 		return
 	}
+
+	// fields that are optional
 	if report.StartTime.IsZero() {
 		if report.EndTime.IsZero() {
 			report.StartTime = nowTime
@@ -190,7 +170,7 @@ func ListReportsHandler(ctx *iris.Context) {
 
 	filter := storage.ReportStoreFilter{
 		Hostname: hostname,
-		Cmdname:  cmdName,
+		Name:     cmdName,
 		ExitCode: exitCode,
 		ExitType: exitType,
 	}
@@ -251,7 +231,7 @@ func GraphReportsHandler(ctx *iris.Context) {
 
 	filter := storage.ReportStoreFilter{
 		Hostname: hostname,
-		Cmdname:  cmdName,
+		Name:     cmdName,
 		ExitCode: exitCode,
 		ExitType: exitType,
 	}
