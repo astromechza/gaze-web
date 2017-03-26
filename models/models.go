@@ -11,10 +11,10 @@ type Tag struct {
 
 type Report struct {
 	ID              uint       `gorm:"primary_key"  json:"-"`
+	Ulid            string     `gorm:"type:varchar(100);unique_index" json:"-"`
 	CreatedAt       time.Time  `json:"-"`
 	UpdatedAt       time.Time  `json:"-"`
 	DeletedAt       *time.Time `sql:"index" json:"-"`
-	Ulid            string     `gorm:"type:varchar(100);unique_index" json:"-"`
 	Name            string     `json:"name"`
 	Command         string     `json:"-"`
 	RawCommand      []string   `gorm:"-" json:"command"`
