@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"runtime"
 	"time"
 
 	"github.com/ararog/timeago"
@@ -32,7 +33,7 @@ func timeAgoString(t time.Time) string {
 }
 
 func buildVersionString() string {
-	return fmt.Sprintf("Version: %s (%s) on %s \n", Version, GitSummary, BuildDate)
+	return fmt.Sprintf("%s (%s) | %s | %s\n", Version, GitSummary, BuildDate, runtime.Version())
 }
 
 func buildTemplateFuncsMap() map[string]interface{} {

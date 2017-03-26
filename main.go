@@ -10,6 +10,8 @@ import (
 
 	"path/filepath"
 
+	"runtime"
+
 	"gopkg.in/kataras/iris.v6"
 	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
 	"gopkg.in/kataras/iris.v6/adaptors/view"
@@ -58,7 +60,7 @@ func mainInner() error {
 
 	// do arg checking
 	if *versionFlag {
-		fmt.Printf("Version: %s (%s) on %s \n", Version, GitSummary, BuildDate)
+		fmt.Printf("Version: %s (%s) on %s [%s]\n", Version, GitSummary, BuildDate, runtime.Version())
 		fmt.Println(logoImage)
 		fmt.Println("Project: github.com/AstromechZA/gaze-web")
 		return nil
