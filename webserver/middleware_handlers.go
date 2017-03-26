@@ -1,4 +1,4 @@
-package main
+package webserver
 
 import (
 	"strconv"
@@ -7,10 +7,10 @@ import (
 	"gopkg.in/kataras/iris.v6"
 )
 
-type loggerMiddleware struct {
+type LoggerMiddleware struct {
 }
 
-func (m loggerMiddleware) Serve(ctx *iris.Context) {
+func (m LoggerMiddleware) Serve(ctx *iris.Context) {
 	startTime := time.Now()
 	ctx.Next()
 	latency := time.Now().Sub(startTime).Seconds() * 1000

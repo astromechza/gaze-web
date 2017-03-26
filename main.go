@@ -3,18 +3,14 @@ package main
 import (
 	"flag"
 	"fmt"
-	"math/rand"
 	"os"
-	"strings"
-	"time"
-
 	"path/filepath"
-
 	"runtime"
+	"strings"
 
-	"gopkg.in/kataras/iris.v6"
-	"gopkg.in/kataras/iris.v6/adaptors/httprouter"
-	"gopkg.in/kataras/iris.v6/adaptors/view"
+	"github.com/AstromechZA/gaze-web/database"
+	"github.com/AstromechZA/gaze-web/utils"
+	"github.com/AstromechZA/gaze-web/webserver"
 )
 
 const usageString = `
@@ -39,10 +35,6 @@ const logoImage = `
 var Version = "<unofficial build>"
 var GitSummary = "<changes unknown>"
 var BuildDate = "<no date>"
-
-var RandomSource = rand.New(rand.NewSource(time.Now().UnixNano()))
-
-var Database DatabaseRef
 
 func mainInner() error {
 
@@ -69,41 +61,21 @@ func mainInner() error {
 		return fmt.Errorf("Port must be > 0")
 	}
 
+	utils.EmbeddedVersionString = fmt.Sprintf("Version: %s (%s) | %s | %s", Version, GitSummary, BuildDate, runtime.Version())
+
 	// construct server directory
 	srvDir, _ := filepath.Abs(os.Args[0])
 	srvDir = filepath.Dir(srvDir)
 
 	// set up database and models
-	db, err := initDatabase("gaze-web.db")
+	db, err := database.InitSqliteDatabase("gaze-web.db")
 	if err != nil {
 		return err
 	}
 	defer db.Close()
-	Database.Active = db
+	database.ActiveDB = db
 
-	app := iris.New()
-
-	app.Adapt(iris.DevLogger())
-	app.Adapt(httprouter.New())
-
-	engine := view.HTML(filepath.Join(srvDir, "templates"), ".html")
-	engine.Layout("root/layout.html")
-	engine.Funcs(buildTemplateFuncsMap())
-	app.Adapt(engine)
-
-	app.Use(loggerMiddleware{})
-
-	app.StaticWeb("/static", filepath.Join(srvDir, "static"))
-
-	app.Get("/", indexHandler)
-	app.Post("/report", newReportHandler)
-	app.Put("/report", newReportHandler)
-	app.Get("/reports", listReportsHandler)
-	app.Get("/reports/:ulid", getReportHandler)
-	app.Get("/graph", graphReportsHandler)
-
-	app.OnError(iris.StatusInternalServerError, error500Handler)
-
+	app := webserver.Setup(srvDir)
 	app.Listen(fmt.Sprintf(":%v", *portFlag))
 	return nil
 }

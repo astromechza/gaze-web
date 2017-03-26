@@ -1,11 +1,11 @@
-package main
+package utils
 
 import (
 	"fmt"
 	"math"
 )
 
-func fmtElapsedTime(seconds float32) string {
+func formatElapsedTime(seconds float32) string {
 	units := []string{"Nanosecond", "Microsecond", "Millisecond", "Second", "Minute", "Hour", "Day"}
 	divisors := []int{1, 1000, 1000, 1000, 60, 60, 24}
 	v := math.Abs(float64(seconds)) * 1000.0 * 1000.0 * 1000.0

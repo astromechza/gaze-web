@@ -1,17 +1,17 @@
-package main
+package database
 
 import (
 	"time"
 
 	"github.com/jinzhu/gorm"
+
+	// support for sqlite
 	_ "github.com/jinzhu/gorm/dialects/sqlite"
 )
 
-type DatabaseRef struct {
-	Active *gorm.DB
-}
+var ActiveDB *gorm.DB
 
-func initDatabase(filepath string) (*gorm.DB, error) {
+func InitSqliteDatabase(filepath string) (*gorm.DB, error) {
 	db, err := gorm.Open("sqlite3", filepath)
 	if err != nil {
 		return nil, err

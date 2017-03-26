@@ -1,8 +1,6 @@
-package main
+package utils
 
 import (
-	"fmt"
-	"runtime"
 	"time"
 
 	"github.com/ararog/timeago"
@@ -32,17 +30,15 @@ func timeAgoString(t time.Time) string {
 	return s
 }
 
-func buildVersionString() string {
-	return fmt.Sprintf("%s (%s) | %s | %s\n", Version, GitSummary, BuildDate, runtime.Version())
-}
+var EmbeddedVersionString = ""
 
-func buildTemplateFuncsMap() map[string]interface{} {
+func BuildTemplateFuncsMap() map[string]interface{} {
 	output := make(map[string]interface{})
 	output["add"] = templateFuncAdd
 	output["irange"] = templateFuncIRange
 	output["tsf"] = timestampFormat1
-	output["fet"] = fmtElapsedTime
+	output["fet"] = formatElapsedTime
 	output["tago"] = timeAgoString
-	output["version"] = buildVersionString
+	output["version"] = func() string { return EmbeddedVersionString }
 	return output
 }
