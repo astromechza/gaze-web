@@ -3,6 +3,8 @@ package utils
 import (
 	"time"
 
+	"strings"
+
 	"github.com/ararog/timeago"
 )
 
@@ -30,6 +32,50 @@ func timeAgoString(t time.Time) string {
 	return s
 }
 
+func quoteArgItem(item string) string {
+	if strings.ContainsAny(item, " \t\n\v\"") {
+		buff := "\""
+
+		for i := 0; ; i++ {
+			numescapes := 0
+			for ; i < len(item) && item[i] == '\\'; i++ {
+				numescapes++
+			}
+			if i >= len(item) {
+				for x := 0; x < numescapes; x++ {
+					buff += "\\\\"
+				}
+				break
+			} else if item[i] == '"' {
+				for x := 0; x < numescapes; x++ {
+					buff += "\\\\"
+				}
+				buff += "\\"
+				buff += string(item[i])
+			} else {
+				for x := 0; x < numescapes; x++ {
+					buff += "\\"
+				}
+				buff += string(item[i])
+			}
+		}
+		buff += "\""
+		return buff
+	}
+	return item
+}
+
+func formatListAsQuoted(argv []string) string {
+	buff := ""
+	for i, item := range argv {
+		if i > 0 {
+			buff += " "
+		}
+		buff += quoteArgItem(item)
+	}
+	return buff
+}
+
 var EmbeddedVersionString = ""
 
 func BuildTemplateFuncsMap() map[string]interface{} {
@@ -40,5 +86,6 @@ func BuildTemplateFuncsMap() map[string]interface{} {
 	output["fet"] = formatElapsedTime
 	output["tago"] = timeAgoString
 	output["version"] = func() string { return EmbeddedVersionString }
+	output["formatListAsQuoted"] = formatListAsQuoted
 	return output
 }

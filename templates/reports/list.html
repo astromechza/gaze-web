@@ -50,7 +50,7 @@
         <tr>
             <td><strong>Most Recently Succeeded:</strong></td>
             <td>
-            {{ if ne .LastSuccess.Ulid "" }}
+            {{ if .LastSuccess }}
                 <a href="/reports/{{ .LastSuccess.Ulid }}">{{ tago .LastSuccess.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
             {{ else }}
                 (never)
@@ -58,7 +58,7 @@
             </td>
             <td><strong>Most Recently Failed:</strong></td>
             <td>
-            {{ if ne .LastFailure.Ulid "" }}
+            {{ if .LastFailure }}
                 <a href="/reports/{{ .LastFailure.Ulid }}">{{ tago .LastFailure.EndTime }} <i class="fa fa-external-link" aria-hidden="true"></i></a>
             {{ else }}
                 (never)

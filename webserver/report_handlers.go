@@ -175,20 +175,40 @@ func ListReportsHandler(ctx *iris.Context) {
 		ExitType: exitType,
 	}
 
-	reports, _ := storage.ActiveStore.ListReportsPage(filter, numberPerPage, pageNum)
+	reports, err := storage.ActiveStore.ListReportsPage(filter, numberPerPage, pageNum)
+	if err != nil {
+		ctx.Log(iris.DevMode, "err: %s", err)
+		ctx.EmitError(iris.StatusInternalServerError)
+		return
+	}
 
-	totalRecords, _ := storage.ActiveStore.CountReports(filter)
+	totalRecords, err := storage.ActiveStore.CountReports(filter)
+	if err != nil {
+		ctx.Log(iris.DevMode, "err: %s", err)
+		ctx.EmitError(iris.StatusInternalServerError)
+		return
+	}
 
-	lastFailure, _ := storage.ActiveStore.GetLatestFailedReport(filter)
-	lastSuccess, _ := storage.ActiveStore.GetLatestSuccessfulReport(filter)
+	lastFailure, err := storage.ActiveStore.GetLatestFailedReport(filter)
+	if err != nil {
+		ctx.Log(iris.DevMode, "err: %s", err)
+		ctx.EmitError(iris.StatusInternalServerError)
+		return
+	}
+	lastSuccess, err := storage.ActiveStore.GetLatestSuccessfulReport(filter)
+	if err != nil {
+		ctx.Log(iris.DevMode, "err: %s", err)
+		ctx.EmitError(iris.StatusInternalServerError)
+		return
+	}
 
 	numberOfPages := int(math.Ceil(float64(totalRecords) / float64(numberPerPage)))
 
 	ctx.MustRender("reports/list.html", struct {
 		Title        string
 		Reports      []models.Report
-		LastSuccess  models.Report
-		LastFailure  models.Report
+		LastSuccess  *models.Report
+		LastFailure  *models.Report
 		TotalRecords int
 		GraphLink    string
 
@@ -201,7 +221,7 @@ func ListReportsHandler(ctx *iris.Context) {
 		FormExit     string
 	}{
 		"Reports",
-		*reports, *lastSuccess, *lastFailure,
+		*reports, lastSuccess, lastFailure,
 		totalRecords,
 		"/graph" + paginationReadyQueryString(activeQuery),
 		int64(pageNum), int64(numberOfPages),
