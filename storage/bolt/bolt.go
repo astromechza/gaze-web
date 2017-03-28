@@ -206,7 +206,7 @@ func (s *BoltDBReportStore) ListReportsPage(filter storage.ReportStoreFilter, nu
 	if endIndex >= len(reports2) {
 		endIndex = len(reports2) - 1
 	}
-	output := make([]models.Report, endIndex-startIndex+1)
+	output := make([]models.Report, numberPerPage)
 	slice := reports2[startIndex:(endIndex + 1)]
 	copy(output, slice)
 	return &output, nil
