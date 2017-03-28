@@ -72,6 +72,25 @@ func (s *BoltDBReportStore) GetReport(u string) (*models.Report, error) {
 	return &output, nil
 }
 
+func reportMatchesFilter(report *models.Report, filter storage.ReportStoreFilter) bool {
+	if filter.Name != "" && report.Name != filter.Name {
+		return false
+	}
+
+	if filter.Hostname != "" && report.Hostname != filter.Hostname {
+		return false
+	}
+
+	if filter.ExitType == "not" {
+		if report.ExitCode == filter.ExitCode {
+			return false
+		}
+	} else if filter.ExitType != "" && report.ExitCode != filter.ExitCode {
+		return false
+	}
+	return true
+}
+
 func (s *BoltDBReportStore) getAllReports(filter storage.ReportStoreFilter) (*[]models.Report, error) {
 	var output []models.Report
 	err := s.db.View(func(tx *bolt.Tx) error {
@@ -81,17 +100,7 @@ func (s *BoltDBReportStore) getAllReports(filter storage.ReportStoreFilter) (*[]
 			var temp models.Report
 			_ = json.Unmarshal(payload, &temp)
 
-			if filter.Name != "" && temp.Name != filter.Name {
-				continue
-			}
-
-			if filter.Hostname != "" && temp.Hostname != filter.Hostname {
-				continue
-			}
-
-			if filter.ExitType == "not" && temp.ExitCode == filter.ExitCode {
-				continue
-			} else if filter.ExitType != "" && temp.ExitCode != filter.ExitCode {
+			if !reportMatchesFilter(&temp, filter) {
 				continue
 			}
 
@@ -122,7 +131,13 @@ func (s *BoltDBReportStore) CountReports(filter storage.ReportStoreFilter) (int,
 	err := s.db.View(func(tx *bolt.Tx) error {
 		mainBucket := tx.Bucket([]byte(bucketReports))
 		c := mainBucket.Cursor()
-		for k, _ := c.First(); k != nil; k, _ = c.Next() {
+		for k, payload := c.First(); k != nil; k, payload = c.Next() {
+			var temp models.Report
+			_ = json.Unmarshal(payload, &temp)
+
+			if !reportMatchesFilter(&temp, filter) {
+				continue
+			}
 			output++
 		}
 		return nil
